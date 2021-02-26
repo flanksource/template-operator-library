@@ -1,0 +1,98 @@
+apiVersion: templating.flanksource.com/v1
+kind: Template
+metadata:
+  name: elasticsearch-db
+spec:
+  source:
+    apiVersion: db.flanksource.com/v1
+    kind: ElasticsearchDB
+  resources:
+    - apiVersion: elasticsearch.k8s.elastic.co/v1
+      kind: Elasticsearch
+      metadata:
+        name: '{{ .metadata.name }}'
+        namespace: '{{ .metadata.namespace }}'
+      spec:
+        version: '{{ .spec.version }}'
+        nodeSets:
+          - name: default
+            count: '{{ .spec.replicas | default 3 }}'
+            config:
+              node.master: true
+              node.data: true
+              node.ingest: true
+              node.store.allow_mmap: false
+              xpack.security.transport.ssl.supported_protocols: TLSv1.1,TLSv1.2
+              xpack.security.authc.anonymous.roles: fluentd
+            podTemplate:
+              spec:
+                containers:
+                  - name: elasticsearch
+                    env:
+                      - name: ES_JAVA_OPTS
+                        value: '-Xms{{ .spec.heap | default "2Gi" | strings.ReplaceAll "Ki" "k" | strings.ReplaceAll "Mi" "m" | strings.ReplaceAll "Gi" "g"  }} -Xmx{{ .spec.mem.requests | default "2Gi" | strings.ReplaceAll "Ki" "k" | strings.ReplaceAll "Mi" "m" | strings.ReplaceAll "Gi" "g" }}'
+                    resources:
+                      requests:
+                        memory: '{{ .spec.resources.requests.memory | default "2Gi" }}'
+                        cpu: '{{ .spec.resources.requests.cpu | default "500m" }}'
+                      limits:
+                        memory: '{{ .spec.resources.limits.memory | default "3Gi" }}'
+                        cpu: '{{ specs.resources.limits.cpu | default "2" }}'
+            volumeClaimTemplates:
+              - metadata:
+                  name: elasticsearch-data
+                spec:
+                  accessModes:
+                    - ReadWriteOnce
+                  resources:
+                    requests:
+                      storage: '{{ .spec.volume.capacity | default "10G" }}'
+                  storageClassName: '{{ .spec.volume.storageClass | default ""}}'
+    - apiVersion: kibana.k8s.elastic.co/v1
+      kind: Kibana
+      metadata:
+        name: '{{ .metadata.name }}-kibana'
+        namespace: '{{ .metadata.namespace }}'
+      spec:
+        version: '{{ .spec.version }}'
+        count: 1
+        config:
+          elasticsearch.ssl.certificateAuthorities: /usr/share/kibana/config/elasticsearch-certs/ca.crt
+        elasticsearchRef:
+          name: '{{ .metadata.name }}'
+    - apiVersion: extensions/v1beta1
+      kind: Ingress
+      metadata:
+        name: '{{ .metadata.name }}-ingress'
+        namespace: '{{ .metadata.namespace }}'
+        annotations: '{ .spec.ingress.annotations | coll.Merge (coll.Dict "nginx.ingress.kubernetes.io/backend-protocol" "HTTPS" "nginx.ingress.kubernetes.io/client_max_body_size" "64m" "kubernetes.io/tls-acme" "true") | data.ToJSON }}'
+      spec:
+        tls:
+          - secretName: '{{ .metadata.name }}-tls'
+            hosts:
+              - '{{ .metadata.name }}.{{.spec.domain}}'
+        rules:
+          - host: '{{ .metadata.name }}.{{.spec.domain}}'
+            http:
+              paths:
+                - backend:
+                    serviceName: '{{ .metadata.name }}-http'
+                    servicePort: 9200
+    - apiVersion: extensions/v1beta1
+      kind: Ingress
+      metadata:
+        name: '{{ .metadata.name }}-kibana-ingress'
+        namespace: '{{ .metadata.namespace }}'
+        annotations: '{ .spec.ingress.annotations | coll.Merge (coll.Dict "nginx.ingress.kubernetes.io/backend-protocol" "HTTPS" "kubernetes.io/tls-acme" "true") | data.ToJSON }}'
+      spec:
+        tls:
+          - secretName: '{{ .metadata.name }}-kibana-tls'
+            hosts:
+              - 'kibana-{{ .metadata.name }}.{{.spec.domain}}'
+        rules:
+          - host: 'kibana-{{ .metadata.name }}.{{.spec.domain}}'
+            http:
+              paths:
+                - backend:
+                    serviceName: '{{ .metadata.name }}-kb-http'
+                    servicePort: 5601
