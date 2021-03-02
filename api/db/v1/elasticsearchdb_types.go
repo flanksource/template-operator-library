@@ -31,7 +31,7 @@ type ElasticsearchDBSpec struct {
 	// +kubebuilder:validation:Optional
 	Volume Volume `json:"volume,omitempty"`
 	// +kubebuilder:validation:Optional
-	Heap string `json:"heap,omitempty""`
+	Heap string `json:"heap,omitempty"`
 	// +kubebuilder:validation:Optional
 	Ingress Ingress `json:"ingress,omitempty"`
 }
