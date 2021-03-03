@@ -1,0 +1,13 @@
+apiVersion: db.flanksource.com/v1
+kind: ElasticsearchDB
+metadata:
+  name: estest
+  namespace: elastic-system
+spec:
+  version: "6.8.0"
+  domain: kind
+  ingress:
+    annotations:
+      test: test
+  volume:
+    storageClass: local-path
