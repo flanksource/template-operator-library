@@ -17,7 +17,11 @@ CRD_OPTIONS ?= "crd:trivialVersions=true"
 # Generate manifests e.g. CRD, RBAC etc.
 manifests: controller-gen
 	mkdir -p config/crd/db
-	$(CONTROLLER_GEN) $(CRD_OPTIONS) crd paths="./api/..." output:crd:artifacts:config=config/crd/db
+	$(CONTROLLER_GEN) $(CRD_OPTIONS) paths="./api/db/v1" output:crd:artifacts:config=config/crd/db
+
+# Generate code
+generate: controller-gen
+	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt" paths="./api/db/v1/..."
 
 # find or download controller-gen
 # download controller-gen if necessary
