@@ -1,4 +1,4 @@
-// Package v1 contains API Schema definitions for the karina.flanksource.com v1 API group
+// Package v1 contains API Schema definitions for the db.flanksource.com v1 API group
 // +kubebuilder:object:generate=true
 // +groupName=db.flanksource.com
 package v1
