@@ -32,8 +32,6 @@ $PLATFORM_CLI ca generate --name root-ca --cert-path .certs/root-ca.crt --privat
 $PLATFORM_CLI ca generate --name ingress-ca --cert-path .certs/ingress-ca.crt --private-key-path .certs/ingress-ca.key --password foobar  --expiry 1
 $PLATFORM_CLI provision kind-cluster -v 5 --trace
 
-echo "Kind cluster deployed"
-
 $PLATFORM_CLI deploy crds
 $PLATFORM_CLI deploy calico
 $PLATFORM_CLI deploy base

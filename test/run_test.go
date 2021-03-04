@@ -52,8 +52,9 @@ func TestRunChecks(t *testing.T) {
 	wg := sync.WaitGroup{}
 	for _, fixture := range TestSpace {
 		wg.Add(1)
+		_fixture := fixture
 		go func() {
-			runFixture(t, fixture, client)
+			runFixture(t, _fixture, client)
 			wg.Done()
 		}()
 	}
@@ -72,7 +73,7 @@ func ApplyObject(path string, client *kommons.Client) error {
 	}
 	decoder := yamlutil.NewYAMLOrJSONDecoder(bytes.NewReader([]byte(crd)), 1024)
 
-	for true {
+	for {
 		err := decoder.Decode(&obj)
 		if err != nil { break }
 		if obj == nil { continue }
