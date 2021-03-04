@@ -23,6 +23,7 @@ require (
 	k8s.io/cli-runtime v0.20.1 // indirect
 	k8s.io/utils v0.0.0-20201110183641-67b214c5f920 // indirect
 	sigs.k8s.io/controller-runtime v0.5.7
+	sigs.k8s.io/controller-tools v0.4.0 // indirect
 )
 
 replace (
