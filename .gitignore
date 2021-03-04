@@ -1,2 +1,5 @@
 .idea
 .git
+.bin
+.certs
+test/test.test
