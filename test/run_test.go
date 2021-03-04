@@ -2,6 +2,7 @@ package test
 
 import (
 	"bytes"
+	"flanksource/template-operator-dbs/pkg/health"
 	"fmt"
 	"github.com/mitchellh/go-homedir"
 	"io/ioutil"
@@ -19,6 +20,7 @@ type TestInstance struct {
 	CRD string
 	Template string
 	Fixture string
+	Test func(client *kommons.Client, namespace string) (bytes.Buffer, error)
 }
 
 var TestSpace []TestInstance
@@ -29,6 +31,7 @@ func TestMain(m *testing.M) {
 			CRD:      "../config/crd/db/db.flanksource.com_elasticsearchdbs.yaml",
 			Template: "../config/templates/elasticsearch-db.yaml",
 			Fixture:  "fixtures/elasticsearch-db.yaml",
+			Test:     health.ElasticsearchCheck,
 		},
 	}
 	code := m.Run()
@@ -103,27 +106,22 @@ func runFixture(t *testing.T, fixture TestInstance, client *kommons.Client) {
 		}
 		time.Sleep(time.Second*10)
 
-		fixture, err := ioutil.ReadFile(fixture.Fixture)
+		testfixture, err := ioutil.ReadFile(fixture.Fixture)
 		if err != nil {
 			t.Fatal(err)
 		}
 		var obj unstructured.Unstructured
-		decoder := yamlutil.NewYAMLOrJSONDecoder(bytes.NewReader([]byte(fixture)), 1024)
+		decoder := yamlutil.NewYAMLOrJSONDecoder(bytes.NewReader([]byte(testfixture)), 1024)
 		if err := decoder.Decode(&obj); err != nil {
 			t.Fatalf("Could not unmarshal test instance: %v",err)
 		}
 
-		client, err := client.GetClientset()
-		if err != nil {
-			t.Fatal("Could not retrieve client")
-		}
-		start := time.Now()
-
 		t.Log("Checking test instance output")
-		kommons.WaitForNamespace(client, obj.GetNamespace(), time.Second*300)
-		if start.Add(time.Second*300).Before(time.Now()) {
-			t.Log("Namespace not ready within 5 min")
-			t.Fail()
+		testlog, err := fixture.Test(client, obj.GetNamespace())
+		t.Log(testlog.String())
+		if err != nil {
+			t.Fatalf("Elasticsearch test failed: %v", err)
 		}
+
 	})
 }

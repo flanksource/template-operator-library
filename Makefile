@@ -1,5 +1,7 @@
 
-default: manifests
+default: build
+
+build: manifests
 
 ifeq ($(VERSION),)
 VERSION=$(shell git describe --tags  --long)-$(shell date +"%Y%m%d%H%M%S")
@@ -36,3 +38,7 @@ CONTROLLER_GEN=$(GOBIN)/controller-gen
 else
 CONTROLLER_GEN=$(shell which controller-gen)
 endif
+
+bin/yq:
+	@mkdir -p bin
+	@curl -sSLo bin/yq https://github.com/mikefarah/yq/releases/download/3.4.1/yq_$(OS)_$(ARCH) && chmod +x bin/yq"

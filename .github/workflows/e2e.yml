@@ -1,0 +1,20 @@
+name: E2E
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  e2e:
+    runs-on: ubuntu-20.04
+    if: "! contains(toJSON(github.event.commits.*.message), 'skip-e2e')"
+    steps:
+      - name: Install Go
+        uses: actions/setup-go@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Test
+        run: ./test/test.sh

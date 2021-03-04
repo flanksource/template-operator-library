@@ -3,6 +3,7 @@ module flanksource/template-operator-dbs
 go 1.16
 
 require (
+	github.com/flanksource/commons v1.4.3 // indirect
 	github.com/flanksource/kommons v0.2.2
 	github.com/hashicorp/go-version v1.2.0 // indirect
 	github.com/imdario/mergo v0.3.11 // indirect
