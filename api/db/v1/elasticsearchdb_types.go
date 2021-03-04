@@ -44,7 +44,7 @@ type Volume struct {
 }
 
 type Ingress struct{
-	Annotations map[string]string `json:"annotations,omitempty""`
+	Annotations map[string]string `json:"annotations,omitempty"`
 }
 
 func init() {
