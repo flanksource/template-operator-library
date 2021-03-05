@@ -1,0 +1,42 @@
+apiVersion: templating.flanksource.com/v1
+kind: Template
+metadata:
+  name: redis-db
+spec:
+  source:
+    apiVersion: db.flanksource.com/v1
+    kind: RedisDB
+  resources:
+    - apiVersion: databases.spotahome.com/v1
+      kind: RedisFailover
+      metadata:
+        name: {{.metadata.name}}
+        namespace: {{.metadata.namespace}}
+      spec:
+        sentinel:
+          replicas: '{{.spec.sentinelReplicas | default "3"}}'
+          resources:
+            requests:
+              cpu: '{{.spec.sentinelCPU | default "100m"}}'
+            limits:
+              memory: '{{.spec.sentinelMemory | default "100Mi"}}'
+        redis:
+          replicas: {{.spec.replicas | default "3"}}
+          resources:
+            requests:
+              cpu: '{{.spec.cpu | default "100m"}}'
+              memory: '{{.spec.memory | default "500Mi"}}'
+            limits:
+              cpu: '{{.spec.cpu | default "100m"}}'
+              memory: '{{.spec.memory | default "500Mi"}}'
+          storage:
+            persistentVolumeClaim:
+              metadata:
+                name: {{.metadata.name}}-persistent-data
+              spec:
+                accessModes:
+                  - ReadWriteOnce
+                resources:
+                  requests:
+                    storage: '{{.spec.storage.size | default "1Gi"}}'
+                storageClassName: '{{.spec.storage.storageClass | default ""}}'
