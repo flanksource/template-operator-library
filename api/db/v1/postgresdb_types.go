@@ -21,20 +21,13 @@ type PostgresDBList struct {
 }
 
 type PostgresDBSpec struct {
-	Replicas int            `json:"replicas,omitempty"`
-	Storage  PostgresVolume `json:"storage,omitempty"`
+	Replicas int     `json:"replicas,omitempty"`
+	Storage  Storage `json:"storage,omitempty"`
 	// +kubebuilder:validation:Optional
 	Backup     PostgresBackup    `json:"backup,omitempty"`
 	CPU        string            `json:"cpu,omitempty"`
 	Memory     string            `json:"memory,omitempty"`
 	Parameters map[string]string `json:"parameters,omitempty"`
-}
-
-type PostgresVolume struct {
-	// Storage class to use. If not set default will be used
-	StorageClass string `yaml:"storageClass,omitempty" json:"storageClass,omitempty"`
-	// Size. Required if persistence is enabled
-	Size string `yaml:"size,omitempty" json:"size,omitempty"`
 }
 
 type PostgresBackup struct {
