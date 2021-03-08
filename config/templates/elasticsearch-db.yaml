@@ -46,8 +46,8 @@ spec:
                     - ReadWriteOnce
                   resources:
                     requests:
-                      storage: '{{ .spec.volume.capacity | default "10G" }}'
-                  storageClassName: '{{ .spec.volume.storageClass | default ""}}'
+                      storage: '{{ .spec.storage.size | default "10G" }}'
+                  storageClassName: '{{ .spec.storage.storageClass | default ""}}'
     - apiVersion: kibana.k8s.elastic.co/v1
       kind: Kibana
       metadata:
