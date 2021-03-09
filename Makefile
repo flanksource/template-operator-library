@@ -22,7 +22,7 @@ manifests: controller-gen
 	$(CONTROLLER_GEN) object paths="./api/..."
 	$(CONTROLLER_GEN) $(CRD_OPTIONS) paths="./api/db/..." output:crd:artifacts:config=config/crd/db output:none
 
-format:
+format: .bin/yq
 	 for file in $$(find config -iname *.yaml); do yq r -P $$file > $$file.tmp; mv $$file.tmp $$file; done
 
 # find or download controller-gen
@@ -43,5 +43,5 @@ CONTROLLER_GEN=$(shell which controller-gen)
 endif
 
 bin/yq:
-	@mkdir -p bin
+	@mkdir -p .bin
 	@curl -sSLo bin/yq https://github.com/mikefarah/yq/releases/download/3.4.1/yq_$(OS)_$(ARCH) && chmod +x bin/yq"
