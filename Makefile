@@ -42,6 +42,6 @@ else
 CONTROLLER_GEN=$(shell which controller-gen)
 endif
 
-bin/yq:
+.bin/yq:
 	@mkdir -p .bin
-	@curl -sSLo bin/yq https://github.com/mikefarah/yq/releases/download/3.4.1/yq_$(OS)_$(ARCH) && chmod +x bin/yq"
+	@curl -sSLo .bin/yq https://github.com/mikefarah/yq/releases/download/3.4.1/yq_$(OS)_$(ARCH) && chmod +x .bin/yq"
