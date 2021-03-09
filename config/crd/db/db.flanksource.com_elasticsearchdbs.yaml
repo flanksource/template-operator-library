@@ -73,18 +73,18 @@ spec:
                       to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/'
                     type: object
                 type: object
-              version:
-                type: string
-              volume:
+              storage:
                 properties:
-                  capacity:
-                    description: Capacity. Required if persistence is enabled
+                  size:
+                    description: Size. Required if persistence is enabled
                     type: string
                   storageClass:
                     description: Storage class to use. If not set default will be
                       used
                     type: string
                 type: object
+              version:
+                type: string
             type: object
         type: object
     served: true

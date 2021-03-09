@@ -21,15 +21,17 @@ type RedisDBList struct {
 }
 
 type RedisDBSpec struct {
-	Replicas string `json:"replicas,omitempty"`
-	CPU      string `json:"cpu,omitempty"`
-	Memory   string `json:"memory,omitempty"`
+	Redis    RedisSpec    `json:"redis"`
+	Sentinel SentinelSpec `json:"sentinel"`
+	Storage  Storage      `json:"storage,omitempty"`
+}
 
-	SentinelReplicas string `json:"sentinelReplicas,omitempty"`
-	SentinelCPU      string `json:"sentinelCPU,omitempty"`
-	SentinelMemory   string `json:"sentinelMemory,omitempty"`
+type RedisSpec struct {
+	PodResources `json:",inline"`
+}
 
-	Storage Storage `json:"storage,omitempty"`
+type SentinelSpec struct {
+	PodResources `json:",inline"`
 }
 
 func init() {
