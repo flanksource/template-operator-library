@@ -23,7 +23,7 @@ manifests: controller-gen
 	$(CONTROLLER_GEN) $(CRD_OPTIONS) paths="./api/db/..." output:crd:artifacts:config=config/crd/db output:none
 
 format: .bin/yq
-	 for file in $$(find config -iname *.yaml); do yq r -P $$file > $$file.tmp; mv $$file.tmp $$file; done
+	 for file in $$(find config -iname *.yaml); do $(YQ) r -P $$file > $$file.tmp; mv $$file.tmp $$file; done
 
 # find or download controller-gen
 # download controller-gen if necessary
@@ -42,6 +42,11 @@ else
 CONTROLLER_GEN=$(shell which controller-gen)
 endif
 
+OS   = $(shell uname -s | tr '[:upper:]' '[:lower:]')
+ARCH = $(shell uname -m | sed 's/x86_64/amd64/')
+
 .bin/yq:
-	@mkdir -p .bin
-	@curl -sSLo .bin/yq https://github.com/mikefarah/yq/releases/download/3.4.1/yq_$(OS)_$(ARCH) && chmod +x .bin/yq"
+	mkdir -p .bin
+	curl -sSLo .bin/yq https://github.com/mikefarah/yq/releases/download/3.4.1/yq_$(OS)_$(ARCH) && chmod +x .bin/yq
+
+YQ = $(realpath ./.bin/yq)
