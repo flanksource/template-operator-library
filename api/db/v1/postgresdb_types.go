@@ -21,12 +21,10 @@ type PostgresDBList struct {
 }
 
 type PostgresDBSpec struct {
-	Replicas int     `json:"replicas,omitempty"`
-	Storage  Storage `json:"storage,omitempty"`
+	PodResources `json:",inline"`
+	Storage      Storage `json:"storage,omitempty"`
 	// +kubebuilder:validation:Optional
 	Backup     PostgresBackup    `json:"backup,omitempty"`
-	CPU        string            `json:"cpu,omitempty"`
-	Memory     string            `json:"memory,omitempty"`
 	Parameters map[string]string `json:"parameters,omitempty"`
 }
 

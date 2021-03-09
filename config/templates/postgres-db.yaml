@@ -111,11 +111,11 @@ spec:
                 protocol: TCP
             resources:
               limits:
-                cpu: 200m
-                memory: 128Mi
+                cpu: '{{.spec.resources.limits.cpu | default "100m"}}'
+                memory: '{{.spec.resources.limits.memory | default "128Mi"}}'
               requests:
-                cpu: 10m
-                memory: 128Mi
+                cpu: '{{.spec.resources.requests.cpu | default "10m"}}'
+                memory: '{{.spec.resources.requests.memory | default "128Mi"}}'
         teamId: postgres
         tls: null
         users:
