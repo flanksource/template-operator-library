@@ -1,7 +1,7 @@
 
 default: build
 
-build: manifests
+build: manifests format
 
 ifeq ($(VERSION),)
 VERSION=$(shell git describe --tags  --long)-$(shell date +"%Y%m%d%H%M%S")
@@ -21,6 +21,9 @@ manifests: controller-gen
 	mkdir -p config/crd/db
 	$(CONTROLLER_GEN) object paths="./api/..."
 	$(CONTROLLER_GEN) $(CRD_OPTIONS) paths="./api/db/..." output:crd:artifacts:config=config/crd/db output:none
+
+format:
+	 for file in $$(find config -iname *.yaml); do yq r -P $$file > $$file.tmp; mv $$file.tmp $$file; done
 
 # find or download controller-gen
 # download controller-gen if necessary
