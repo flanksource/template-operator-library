@@ -65,8 +65,6 @@ spec:
                           to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/'
                         type: object
                     type: object
-                required:
-                - replicas
                 type: object
               sentinel:
                 properties:
@@ -99,8 +97,6 @@ spec:
                           to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/'
                         type: object
                     type: object
-                required:
-                - replicas
                 type: object
               storage:
                 properties:

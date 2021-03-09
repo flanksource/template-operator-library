@@ -83,8 +83,6 @@ spec:
                       used
                     type: string
                 type: object
-            required:
-            - replicas
             type: object
         type: object
     served: true

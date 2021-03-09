@@ -1,0 +1,11 @@
+apiVersion: db.flanksource.com/v1
+kind: ElasticsearchDB
+metadata:
+  name: es-basic
+  namespace: eck
+spec:
+  version: 7.6.0
+  replicas: 3
+  domain: 127.0.0.1.nip.io
+  storage:
+    storageClass: local-path

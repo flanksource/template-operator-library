@@ -10,6 +10,7 @@ type Storage struct {
 }
 
 type PodResources struct {
+	// +kubebuilder:validation:Optional
 	Replicas int `json:"replicas"`
 	// +kubebuilder:validation:Optional
 	Resources v1.ResourceRequirements `json:"resources"`
