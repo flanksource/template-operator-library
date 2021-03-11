@@ -38,6 +38,7 @@ $PLATFORM_CLI deploy base
 $PLATFORM_CLI deploy minio
 $PLATFORM_CLI deploy stubs
 $PLATFORM_CLI deploy template-operator
+$PLATFORM_CLI deploy redis-operator
 $PLATFORM_CLI deploy eck
 
 cd test
