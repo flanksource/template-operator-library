@@ -4,7 +4,7 @@ go 1.16
 
 require (
 	github.com/flanksource/commons v1.5.1 // indirect
-	github.com/flanksource/kommons v0.4.3
+	github.com/flanksource/kommons v0.4.4
 	github.com/hashicorp/go-version v1.2.0 // indirect
 	github.com/imdario/mergo v0.3.11 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
