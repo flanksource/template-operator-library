@@ -9,5 +9,5 @@ spec:
   ingress:
     annotations:
       test: test
-  volume:
+  storage:
     storageClass: local-path

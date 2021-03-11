@@ -2,7 +2,7 @@
 
 set -ex
 
-export PLATFORM_CLI_VERSION=v0.28.1
+export PLATFORM_CLI_VERSION=v0.30.0
 export PLATFORM_CLI="./karina -c test/config.yaml"
 export KUBECONFIG=~/.kube/config
 export DOCKER_API_VERSION=1.39

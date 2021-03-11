@@ -1,10 +1,10 @@
-module flanksource/template-operator-dbs
+module github.com/flanksource/template-operator-library
 
 go 1.16
 
 require (
-	github.com/flanksource/commons v1.4.3 // indirect
-	github.com/flanksource/kommons v0.2.2
+	github.com/flanksource/commons v1.5.1 // indirect
+	github.com/flanksource/kommons v0.4.3
 	github.com/hashicorp/go-version v1.2.0 // indirect
 	github.com/imdario/mergo v0.3.11 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
@@ -18,9 +18,8 @@ require (
 	google.golang.org/genproto v0.0.0-20201110150050-8816d57aaa9a // indirect
 	google.golang.org/grpc v1.27.1 // indirect
 	gopkg.in/yaml.v2 v2.3.0 // indirect
-	k8s.io/api v0.20.2
-	k8s.io/apimachinery v0.20.2
-	k8s.io/cli-runtime v0.20.1 // indirect
+	k8s.io/api v0.20.4
+	k8s.io/apimachinery v0.20.4
 	k8s.io/utils v0.0.0-20201110183641-67b214c5f920 // indirect
 	sigs.k8s.io/controller-runtime v0.5.7
 	sigs.k8s.io/controller-tools v0.4.0 // indirect

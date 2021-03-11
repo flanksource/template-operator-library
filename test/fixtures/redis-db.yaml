@@ -1,0 +1,12 @@
+apiVersion: db.flanksource.com/v1
+kind: RedisDB
+metadata:
+  name: redisdb-e2e
+  namespace: redis-operator
+spec:
+  storage:
+    storageClass: local-path
+  redis:
+    replicas: 3
+  sentinel:
+    replicas: 3
