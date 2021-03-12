@@ -83,7 +83,7 @@ func IsElasticReady(item *unstructured.Unstructured) (bool, string) {
 	status := item.Object["status"].(map[string]interface{})
 	phase, found := status["phase"]
 	if !found {
-		return false, "phase not found"
+		return false, "⏳ waiting to become ready"
 	}
 	if phase != "Ready" {
 		return false, "⏳ waiting to become ready"

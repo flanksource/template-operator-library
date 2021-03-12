@@ -44,7 +44,7 @@ func TestMain(m *testing.M) {
 			ReadyChecks: []ReadyCheck{
 				{
 					Resource:             "Elasticsearch",
-					ResourceReadyTimeout: 12 * time.Minute,
+					ResourceReadyTimeout: 9 * time.Minute,
 					WaitFN:               health.IsElasticReady,
 				},
 			},

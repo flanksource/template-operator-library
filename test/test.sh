@@ -34,6 +34,7 @@ $PLATFORM_CLI provision kind-cluster -v 5 --trace
 
 $PLATFORM_CLI deploy crds
 $PLATFORM_CLI deploy calico
+$PLATFORM_CLI deploy csi
 $PLATFORM_CLI deploy base
 $PLATFORM_CLI deploy minio
 $PLATFORM_CLI deploy stubs
