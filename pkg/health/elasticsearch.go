@@ -6,7 +6,6 @@ import (
 
 	"github.com/flanksource/commons/console"
 	"github.com/flanksource/kommons"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
 func ElasticsearchCheck(c *kommons.Client, namespace string) (bytes.Buffer, error) {
@@ -69,27 +68,6 @@ func ElasticsearchCheck(c *kommons.Client, namespace string) (bytes.Buffer, erro
 	// }
 
 	return testlog, nil
-}
-
-func IsElasticReady(item *unstructured.Unstructured) (bool, string) {
-	if item == nil {
-		return false, "⏳ waiting to be created"
-	}
-
-	if item.Object["status"] == nil {
-		return false, "⏳ waiting to become ready"
-	}
-
-	status := item.Object["status"].(map[string]interface{})
-	phase, found := status["phase"]
-	if !found {
-		return false, "⏳ waiting to become ready"
-	}
-	if phase != "Ready" {
-		return false, "⏳ waiting to become ready"
-	}
-
-	return true, ""
 }
 
 func basicAuth(username, password string) string {

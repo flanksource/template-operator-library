@@ -1,6 +1,7 @@
 package v1
 
 import (
+	kommonsv1 "github.com/flanksource/kommons/api/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -9,7 +10,8 @@ import (
 type PostgresDB struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
-	Spec              PostgresDBSpec `json:"spec,omitempty"`
+	Spec              PostgresDBSpec   `json:"spec,omitempty"`
+	Status            PostgresDBStatus `json:"status,omitempty"`
 }
 
 // +kubebuilder:object:root=true
@@ -26,6 +28,10 @@ type PostgresDBSpec struct {
 	// +kubebuilder:validation:Optional
 	Backup     PostgresBackup    `json:"backup,omitempty"`
 	Parameters map[string]string `json:"parameters,omitempty"`
+}
+
+type PostgresDBStatus struct {
+	Conditions kommonsv1.ConditionList `json:"conditions"`
 }
 
 type PostgresBackup struct {

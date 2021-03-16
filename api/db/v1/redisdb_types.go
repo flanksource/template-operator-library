@@ -1,6 +1,7 @@
 package v1
 
 import (
+	kommonsv1 "github.com/flanksource/kommons/api/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -9,7 +10,8 @@ import (
 type RedisDB struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
-	Spec              RedisDBSpec `json:"spec,omitempty"`
+	Spec              RedisDBSpec   `json:"spec,omitempty"`
+	Status            RedisDBStatus `json:"status,omitempty"`
 }
 
 // +kubebuilder:object:root=true
@@ -28,6 +30,10 @@ type RedisDBSpec struct {
 
 type RedisSpec struct {
 	PodResources `json:",inline"`
+}
+
+type RedisDBStatus struct {
+	Conditions kommonsv1.ConditionList `json:"conditions"`
 }
 
 type SentinelSpec struct {

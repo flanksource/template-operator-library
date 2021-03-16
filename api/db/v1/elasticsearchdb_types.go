@@ -1,6 +1,7 @@
 package v1
 
 import (
+	kommonsv1 "github.com/flanksource/kommons/api/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -9,7 +10,8 @@ import (
 type ElasticsearchDB struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
-	Spec              ElasticsearchDBSpec `json:"spec,omitempty"`
+	Spec              ElasticsearchDBSpec   `json:"spec,omitempty"`
+	Status            ElasticsearchDBStatus `json:"status,omitempty"`
 }
 
 // +kubebuilder:object:root=true
@@ -30,6 +32,10 @@ type ElasticsearchDBSpec struct {
 	Heap string `json:"heap,omitempty"`
 	// +kubebuilder:validation:Optional
 	Ingress Ingress `json:"ingress,omitempty"`
+}
+
+type ElasticsearchDBStatus struct {
+	Conditions kommonsv1.ConditionList `json:"conditions"`
 }
 
 type Ingress struct {
