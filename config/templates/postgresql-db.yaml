@@ -275,6 +275,10 @@ spec:
       metadata:
         name: "postgres-connection-{{.metadata.name}}"
         namespace: postgres-operator
+        annotations:
+          # don't let quack try and template username and password
+          quack.pusher.com/left-delim: "[["
+          quack.pusher.com/right-delim: "]]"
       spec:
         interval: 30
         env:
