@@ -1,16 +1,17 @@
 package v1
 
 import (
-	v1 "k8s.io/api/core/v1"
+	kommonsv1 "github.com/flanksource/kommons/api/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // +kubebuilder:object:root=true
 
 type ElasticsearchDB struct {
-	metav1.TypeMeta `json:",inline"`
+	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
-	Spec ElasticsearchDBSpec `json:"spec,omitempty"`
+	Spec              ElasticsearchDBSpec   `json:"spec,omitempty"`
+	Status            ElasticsearchDBStatus `json:"status,omitempty"`
 }
 
 // +kubebuilder:object:root=true
@@ -22,28 +23,22 @@ type ElasticsearchDBList struct {
 }
 
 type ElasticsearchDBSpec struct {
-	Domain string `json:"domain,omitempty"`
-	Version string `json:"version,omitempty"`
+	PodResources `json:",inline"`
+	Domain       string `json:"domain,omitempty"`
+	Version      string `json:"version,omitempty"`
 	// +kubebuilder:validation:Optional
-	Replicas int `json:"replicas,omitempty"`
-	// +kubebuilder:validation:Optional
-	Resources v1.ResourceRequirements `json:"resources,omitempty"`
-	// +kubebuilder:validation:Optional
-	Volume Volume `json:"volume,omitempty"`
+	Storage Storage `json:"storage,omitempty"`
 	// +kubebuilder:validation:Optional
 	Heap string `json:"heap,omitempty"`
 	// +kubebuilder:validation:Optional
 	Ingress Ingress `json:"ingress,omitempty"`
 }
 
-type Volume struct {
-	// Storage class to use. If not set default will be used
-	StorageClass string `yaml:"storageClass,omitempty" json:"storageClass,omitempty"`
-	// Capacity. Required if persistence is enabled
-	Capacity string `yaml:"capacity,omitempty" json:"capacity,omitempty"`
+type ElasticsearchDBStatus struct {
+	Conditions kommonsv1.ConditionList `json:"conditions"`
 }
 
-type Ingress struct{
+type Ingress struct {
 	Annotations map[string]string `json:"annotations,omitempty""`
 }
 

@@ -1,5 +1,7 @@
 
-default: manifests
+default: build
+
+build: manifests format
 
 ifeq ($(VERSION),)
 VERSION=$(shell git describe --tags  --long)-$(shell date +"%Y%m%d%H%M%S")
@@ -17,7 +19,11 @@ CRD_OPTIONS ?= "crd:trivialVersions=true"
 # Generate manifests e.g. CRD, RBAC etc.
 manifests: controller-gen
 	mkdir -p config/crd/db
-	$(CONTROLLER_GEN) $(CRD_OPTIONS) crd paths="./api/..." output:crd:artifacts:config=config/crd/db
+	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt" paths="./api/db/v1/..."
+	$(CONTROLLER_GEN) $(CRD_OPTIONS) paths="./api/db/..." output:crd:artifacts:config=config/crd/db output:none
+
+format: .bin/yq
+	 for file in $$(find config -iname *.yaml); do $(YQ) r -P $$file > $$file.tmp; mv $$file.tmp $$file; done
 
 # find or download controller-gen
 # download controller-gen if necessary
@@ -35,3 +41,12 @@ CONTROLLER_GEN=$(GOBIN)/controller-gen
 else
 CONTROLLER_GEN=$(shell which controller-gen)
 endif
+
+OS   = $(shell uname -s | tr '[:upper:]' '[:lower:]')
+ARCH = $(shell uname -m | sed 's/x86_64/amd64/')
+
+.bin/yq:
+	mkdir -p .bin
+	curl -sSLo .bin/yq https://github.com/mikefarah/yq/releases/download/3.4.1/yq_$(OS)_$(ARCH) && chmod +x .bin/yq
+
+YQ = $(realpath ./.bin/yq)

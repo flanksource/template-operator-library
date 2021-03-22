@@ -30,7 +30,7 @@ spec:
                   - name: elasticsearch
                     env:
                       - name: ES_JAVA_OPTS
-                        value: '-Xms {{ .spec.heap | default "2Gi" | strings.ReplaceAll "Ki" "k" | strings.ReplaceAll "Mi" "m" | strings.ReplaceAll "Gi" "g"  }} -Xmx {{ .spec.mem.requests | default "2Gi" | strings.ReplaceAll "Ki" "k" | strings.ReplaceAll "Mi" "m" | strings.ReplaceAll "Gi" "g" }}'
+                        value: '-Xms{{ .spec.heap | default "2Gi" | strings.ReplaceAll "Ki" "k" | strings.ReplaceAll "Mi" "m" | strings.ReplaceAll "Gi" "g"  }} -Xmx{{ .spec.mem.requests | default "2Gi" | strings.ReplaceAll "Ki" "k" | strings.ReplaceAll "Mi" "m" | strings.ReplaceAll "Gi" "g" }}'
                     resources:
                       requests:
                         memory: '{{ .spec.resources.requests.memory | default "2Gi" }}'
@@ -46,8 +46,8 @@ spec:
                     - ReadWriteOnce
                   resources:
                     requests:
-                      storage: '{{ .spec.volume.capacity | default "10G" }}'
-                  storageClassName: '{{ .spec.volume.storageClass | default ""}}'
+                      storage: '{{ .spec.storage.size | default "10G" }}'
+                  storageClassName: '{{ .spec.storage.storageClass | default ""}}'
     - apiVersion: kibana.k8s.elastic.co/v1
       kind: Kibana
       metadata:

@@ -1,0 +1,54 @@
+name: kind-kind
+ca:
+  cert: .certs/root-ca.crt
+  privateKey: .certs/root-ca.key
+  password: foobar
+calico:
+  disabled: false
+  version: v3.8.2
+  ipip: Never
+  vxlan: Never
+certmanager:
+  version: v1.0.3
+domain: 127.0.0.1.nip.io
+ingressCA:
+  cert: .certs/ingress-ca.crt
+  privateKey: .certs/ingress-ca.key
+  password: foobar
+kubernetes:
+  version: v1.18.8
+  kubeletExtraArgs:
+    authorization-mode: AlwaysAllow
+    node-labels: ingress-ready=true
+  containerRuntime: containerd
+ldap:
+  disabled: true
+  port: "636"
+  groupObjectClass: group
+  groupNameAttr: name
+  userGroups: []
+minio:
+  version: RELEASE.2020-09-02T18-19-50Z
+  replicas: 1
+  access_key: minio
+  secret_key: minio123
+podSubnet: 10.200.0.0/16
+s3:
+  access_key: minio
+  secret_key: minio123
+  region: us-east1
+  endpoint: http://minio.minio.svc:9000
+  usePathStyle: true
+  skipTLSVerify: true
+serviceSubnet: 10.201.0.0/16
+templateOperator:
+  version: v0.1.12
+  syncPeriod: 20s
+platformOperator:
+  version: v0.6.6
+redisOperator:
+  version: v1.0.0
+postgresOperator:
+  version: v1.3.4.flanksource.1
+eck:
+  version: 1.0.0

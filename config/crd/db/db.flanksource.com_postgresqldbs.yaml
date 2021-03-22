@@ -6,14 +6,14 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.4.0
   creationTimestamp: null
-  name: elasticsearchdbs.db.flanksource.com
+  name: postgresqldbs.db.flanksource.com
 spec:
   group: db.flanksource.com
   names:
-    kind: ElasticsearchDB
-    listKind: ElasticsearchDBList
-    plural: elasticsearchdbs
-    singular: elasticsearchdb
+    kind: PostgresqlDB
+    listKind: PostgresqlDBList
+    plural: postgresqldbs
+    singular: postgresqldb
   scope: Namespaced
   versions:
   - name: v1
@@ -34,16 +34,16 @@ spec:
             type: object
           spec:
             properties:
-              domain:
-                type: string
-              heap:
-                type: string
-              ingress:
+              backup:
                 properties:
-                  annotations:
-                    additionalProperties:
-                      type: string
-                    type: object
+                  bucket:
+                    type: string
+                  schedule:
+                    type: string
+                type: object
+              parameters:
+                additionalProperties:
+                  type: string
                 type: object
               replicas:
                 type: integer
@@ -83,8 +83,6 @@ spec:
                       used
                     type: string
                 type: object
-              version:
-                type: string
             type: object
           status:
             properties:

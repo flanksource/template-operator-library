@@ -1,0 +1,23 @@
+apiVersion: db.flanksource.com/v1
+kind: PostgresqlDB
+metadata:
+  name: pg-test
+  namespace: postgres-operator
+spec:
+  backup:
+    bucket: foo
+  parameters:
+    maintenance_work_mem: 634MB
+    max_connections: "1024"
+    shared_buffers: 4759MB
+    work_mem: 475MB
+  replicas: 2
+  resources:
+    requests:
+      cpu: 20m
+      memory: 130Mi
+    limits:
+      cpu: 100m
+      memory: 150Mi
+  storage:
+    storageClass: local-path
