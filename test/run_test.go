@@ -18,18 +18,11 @@ import (
 )
 
 type TestInstance struct {
-	CRD         string
-	Template    string
-	Fixture     string
-	Test        func(client *kommons.Client, namespace string) (bytes.Buffer, error)
-	ReadyChecks []ReadyCheck
-}
-
-type ReadyCheck struct {
-	Name                 string
-	Resource             string
+	CRD                  string
+	Template             string
+	Fixture              string
+	Test                 func(client *kommons.Client, namespace string) (bytes.Buffer, error)
 	ResourceReadyTimeout time.Duration
-	WaitFN               kommons.WaitFN
 }
 
 var TestSpace []TestInstance
@@ -37,35 +30,25 @@ var TestSpace []TestInstance
 func TestMain(m *testing.M) {
 	TestSpace = []TestInstance{
 		{
-			CRD:      "../config/crd/db/db.flanksource.com_elasticsearchdbs.yaml",
-			Template: "../config/templates/elasticsearch-db.yaml",
-			Fixture:  "fixtures/elasticsearch-db.yaml",
-			Test:     health.ElasticsearchCheck,
-			ReadyChecks: []ReadyCheck{
-				{
-					Resource:             "Elasticsearch",
-					ResourceReadyTimeout: 9 * time.Minute,
-					WaitFN:               health.IsElasticReady,
-				},
-			},
+			CRD:                  "../config/crd/db/db.flanksource.com_elasticsearchdbs.yaml",
+			Template:             "../config/templates/elasticsearch-db.yaml",
+			Fixture:              "fixtures/elasticsearch-db.yaml",
+			Test:                 health.ElasticsearchCheck,
+			ResourceReadyTimeout: 8 * time.Minute,
 		},
 		{
-			CRD:      "../config/crd/db/db.flanksource.com_redisdbs.yaml",
-			Template: "../config/templates/redis-db.yaml",
-			Fixture:  "fixtures/redis-db.yaml",
-			Test:     health.RedisCheck,
-			ReadyChecks: []ReadyCheck{
-				{
-					Name:                 "rfr-redisdb-e2e",
-					Resource:             "StatefulSet",
-					ResourceReadyTimeout: 5 * time.Minute,
-				},
-				{
-					Name:                 "rfs-redisdb-e2e",
-					Resource:             "Deployment",
-					ResourceReadyTimeout: 5 * time.Minute,
-				},
-			},
+			CRD:                  "../config/crd/db/db.flanksource.com_redisdbs.yaml",
+			Template:             "../config/templates/redis-db.yaml",
+			Fixture:              "fixtures/redis-db.yaml",
+			Test:                 health.RedisCheck,
+			ResourceReadyTimeout: 5 * time.Minute,
+		},
+		{
+			CRD:                  "../config/crd/db/db.flanksource.com_postgresqldbs.yaml",
+			Template:             "../config/templates/postgresql-db.yaml",
+			Fixture:              "fixtures/postgresql-db.yaml",
+			Test:                 health.PostgresqlCheck,
+			ResourceReadyTimeout: 5 * time.Minute,
 		},
 	}
 	code := m.Run()
@@ -158,30 +141,35 @@ func runFixture(t *testing.T, fixture TestInstance, client *kommons.Client) {
 			t.Fatalf("Could not unmarshal test instance: %v", err)
 		}
 
-		for _, check := range fixture.ReadyChecks {
-			timeout := check.ResourceReadyTimeout
-			if timeout == 0 {
-				timeout = 1 * time.Minute
-			}
-			t.Logf("Waiting for %s %s/%s to be ready", check.Resource, obj.GetNamespace(), obj.GetName())
-			waitFN := check.WaitFN
-			if waitFN == nil {
-				waitFN = client.IsReady
-			}
-			name := check.Name
-			if name == "" {
-				name = obj.GetName()
-			}
-			if _, err := client.WaitForCRD(check.Resource, obj.GetNamespace(), name, timeout, waitFN); err != nil {
-				t.Fatalf("Resource %s %s/%s was not ready in %v: %v", check.Resource, obj.GetNamespace(), obj.GetName(), timeout, err)
-			}
+		timeout := fixture.ResourceReadyTimeout
+		if timeout == 0 {
+			timeout = 1 * time.Minute
 		}
+		t.Logf("Waiting for %s %s/%s to be ready", obj.GetKind(), obj.GetNamespace(), obj.GetName())
+		_, err = client.WaitForCRD(obj.GetKind(), obj.GetNamespace(), obj.GetName(), timeout, client.IsReadyWithConditions)
+		if err != nil {
+			t.Fatalf("Resource %s %s/%s was not ready in %v: %v", obj.GetKind(), obj.GetNamespace(), obj.GetName(), timeout, err)
+		}
+
+		// js, _ := json.Marshal(item.Object["status"].(map[string]interface{})["conditions"])
+		// t.Logf("Item conditions %s\n", js)
+
+		// clientset, _ := client.GetClientset()
+		// deployments, _ := clientset.AppsV1().Deployments(obj.GetNamespace()).List(context.Background(), metav1.ListOptions{})
+		// for _, depl := range deployments.Items {
+		// 	fmt.Printf("Deployment %s %d/%d\n", depl.Name, depl.Status.ReadyReplicas, depl.Status.Replicas)
+		// }
+
+		// sts, _ := clientset.AppsV1().StatefulSets(obj.GetNamespace()).List(context.Background(), metav1.ListOptions{})
+		// for _, s := range sts.Items {
+		// 	fmt.Printf("Deployment %s %d/%d\n", s.Name, s.Status.ReadyReplicas, s.Status.Replicas)
+		// }
 
 		t.Log("Checking test instance output")
 		testlog, err := fixture.Test(client, obj.GetNamespace())
 		t.Log(testlog.String())
 		if err != nil {
-			t.Fatalf("Elasticsearch test failed: %v", err)
+			t.Fatalf("test failed: %v", err)
 		}
 	})
 }

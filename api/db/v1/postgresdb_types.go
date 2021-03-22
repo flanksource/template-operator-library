@@ -7,38 +7,38 @@ import (
 
 // +kubebuilder:object:root=true
 
-type PostgresDB struct {
+type PostgresqlDB struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
-	Spec              PostgresDBSpec   `json:"spec,omitempty"`
-	Status            PostgresDBStatus `json:"status,omitempty"`
+	Spec              PostgresqlDBSpec   `json:"spec,omitempty"`
+	Status            PostgresqlDBStatus `json:"status,omitempty"`
 }
 
 // +kubebuilder:object:root=true
 
-type PostgresDBList struct {
+type PostgresqlDBList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []PostgresDB `json:"items"`
+	Items           []PostgresqlDB `json:"items"`
 }
 
-type PostgresDBSpec struct {
+type PostgresqlDBSpec struct {
 	PodResources `json:",inline"`
 	Storage      Storage `json:"storage,omitempty"`
 	// +kubebuilder:validation:Optional
-	Backup     PostgresBackup    `json:"backup,omitempty"`
+	Backup     PostgresqlBackup  `json:"backup,omitempty"`
 	Parameters map[string]string `json:"parameters,omitempty"`
 }
 
-type PostgresDBStatus struct {
+type PostgresqlDBStatus struct {
 	Conditions kommonsv1.ConditionList `json:"conditions"`
 }
 
-type PostgresBackup struct {
+type PostgresqlBackup struct {
 	Bucket   string `json:"bucket,omitempty"`
 	Schedule string `json:"schedule,omitempty"`
 }
 
 func init() {
-	SchemeBuilder.Register(&PostgresDB{}, &PostgresDBList{})
+	SchemeBuilder.Register(&PostgresqlDB{}, &PostgresqlDBList{})
 }

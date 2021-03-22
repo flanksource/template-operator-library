@@ -48,5 +48,7 @@ platformOperator:
   version: v0.6.6
 redisOperator:
   version: v1.0.0
+postgresOperator:
+  version: v1.3.4.flanksource.1
 eck:
   version: 1.0.0
