@@ -57,7 +57,7 @@ spec:
             value: "{{.spec.backup.bucket}}"
           - name: CLONE_WAL_BUCKET_SCOPE_SUFFIX
             value: /
-        numberOfInstances: "{{ .spec.replicas }}"
+        numberOfInstances: '{{ .spec.replicas | default "2" }}'
         patroni:
           initdb:
             data-checksums: "true"
@@ -77,13 +77,13 @@ spec:
         postgresql:
           parameters: "{{ .spec.parameters | default (coll.Dict) | data.ToJSON }}"
           version: "12"
-        resources:
+        resources:       
           limits:
-            cpu: '{{.spec.cpu | default "1000m"}}'
-            memory: '{{.spec.memory | default "512Mi" }}'
+            cpu: '{{.spec.resources.limits.cpu | default .spec.cpu | default "1000m"}}'
+            memory: '{{.spec.resources.limits.memory | default "512Mi"}}'
           requests:
-            cpu: '{{.spec.cpu | default "100m"}}'
-            memory: '{{.spec.memory | default "128Mi" }}'
+            cpu: '{{.spec.resources.requests.cpu | default .spec.cpu |  default "100m"}}'
+            memory: '{{.spec.resources.requests.memory | default .spec.memory  |   default "128Mi"}}'               
         serviceAnnotations: {}
         sidecars:
           - env:
@@ -111,11 +111,11 @@ spec:
                 protocol: TCP
             resources:
               limits:
-                cpu: '{{.spec.resources.limits.cpu | default "100m"}}'
-                memory: '{{.spec.resources.limits.memory | default "128Mi"}}'
+                cpu: 200m
+                memory: 128Mi
               requests:
-                cpu: '{{.spec.resources.requests.cpu | default "10m"}}'
-                memory: '{{.spec.resources.requests.memory | default "128Mi"}}'
+                cpu: 10m
+                memory: 128Mi
         teamId: postgres
         tls: null
         users:
