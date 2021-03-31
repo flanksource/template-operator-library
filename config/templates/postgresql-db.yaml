@@ -27,7 +27,7 @@ spec:
         enableShmVolume: true
         env:
           - name: BACKUP_SCHEDULE
-            value: "*/5 * * * *"
+            value: '*/5 * * * *'
           - name: USE_WALG_RESTORE
             value: "false"
           - name: USE_WALG_BACKUP
@@ -54,7 +54,7 @@ spec:
                 name: postgres-operator-cluster-environment
           - name: WAL_BUCKET_SCOPE_SUFFIX
           - name: WALG_S3_PREFIX
-            value: "{{.spec.backup.bucket}}"
+            value: '{{.spec.backup.bucket}}'
           - name: CLONE_WAL_BUCKET_SCOPE_SUFFIX
             value: /
         numberOfInstances: '{{ .spec.replicas | default "2" }}'
@@ -75,15 +75,15 @@ spec:
           ttl: 30
         podAnnotations: {}
         postgresql:
-          parameters: "{{ .spec.parameters | default (coll.Dict) | data.ToJSON }}"
+          parameters: '{{ .spec.parameters | default (coll.Dict) | data.ToJSON }}'
           version: "12"
-        resources:       
+        resources:
           limits:
             cpu: '{{.spec.resources.limits.cpu | default .spec.cpu | default "1000m"}}'
             memory: '{{.spec.resources.limits.memory | default .spec.memory | default "512Mi"}}'
           requests:
             cpu: '{{.spec.resources.requests.cpu | default .spec.cpu |  default "100m"}}'
-            memory: '{{.spec.resources.requests.memory | default .spec.memory  |   default "128Mi"}}'               
+            memory: '{{.spec.resources.requests.memory | default .spec.memory  |   default "128Mi"}}'
         serviceAnnotations: {}
         sidecars:
           - env:
@@ -125,97 +125,69 @@ spec:
         volume:
           size: '{{ .spec.storage.size | default "20Gi" }}'
           storageClass: '{{ .spec.storage.storageClass | default "" }}'
+    - apiVersion: v1
+      kind: Secret
+      metadata:
+        name: backup-postgres-{{ .metadata.name }}-config
+        namespace: postgres-operator
+      data:
+        AWS_ACCESS_KEY_ID: '{{ kget "secret/postgres-operator/postgres-operator-cluster-environment" "AWS_ACCESS_KEY_ID" }}'
+        AWS_SECRET_ACCESS_KEY: '{{ kget "secret/postgres-operator/postgres-operator-cluster-environment" "AWS_SECRET_ACCESS_KEY" }}'
+        AWS_ENDPOINT_URL: '{{ kget "secret/postgres-operator/postgres-operator-cluster-environment" "AWS_ENDPOINT_URL" }}'
+        AWS_REGION: '{{ kget "secret/postgres-operator/postgres-operator-cluster-environment" "AWS_REGION" }}'
+        RESTIC_PASSWORD: '{{ kget "secret/postgres-operator/postgres-operator-cluster-environment" "BACKUP_PASSWORD" }}'
+        BACKUP_IMAGE: '{{ kget "secret/postgres-operator/postgres-operator-cluster-environment" "BACKUP_IMAGE" }}'
+        BACKUP_S3_BUCKET: '{{ .spec.backup.bucket | default (kget "secret/postgres-operator/postgres-operator-cluster-environment" "BACKUP_S3_BUCKET") }}'
+        BACKUP_SCHEDULE: '{{ .spec.backup.schedule | default (kget "secret/postgres-operator/postgres-operator-cluster-environment" "BACKUP_SCHEDULE") }}'
+        BACKUP_RETENTION_KEEP_LAST: '{{ .spec.backup.retention.keepLast | default (kget "secret/postgres-operator/postgres-operator-cluster-environment" "BACKUP_RETENTION_KEEP_LAST") }}'
+        BACKUP_RETENTION_KEEP_HOURLY: '{{ .spec.backup.retention.keepHourly | default (kget "secret/postgres-operator/postgres-operator-cluster-environment" "BACKUP_RETENTION_KEEP_HOURLY") }}'
+        BACKUP_RETENTION_KEEP_DAILY: '{{ .spec.backup.retention.keepDaily | default (kget "secret/postgres-operator/postgres-operator-cluster-environment" "BACKUP_RETENTION_KEEP_DAILY") }}'
+        BACKUP_RETENTION_KEEP_WEEKLY: '{{ .spec.backup.retention.keepWeekly | default (kget "secret/postgres-operator/postgres-operator-cluster-environment" "BACKUP_RETENTION_KEEP_WEEKLY") }}'
+        BACKUP_RETENTION_KEEP_MONTHLY: '{{ .spec.backup.retention.keepMonthly | default (kget "secret/postgres-operator/postgres-operator-cluster-environment" "BACKUP_RETENTION_KEEP_MONTHLY") }}'
+        BACKUP_RETENTION_KEEP_YEARLY: '{{ .spec.backup.retention.keepYearly | default (kget "secret/postgres-operator/postgres-operator-cluster-environment" "BACKUP_RETENTION_KEEP_YEARLY") }}'
     - apiVersion: batch/v1beta1
       kind: CronJob
       metadata:
-        name: "backup-postgres-{{.metadata.name}}"
+        name: backup-postgres-{{.metadata.name}}
         namespace: postgres-operator
       spec:
         concurrencyPolicy: Forbid
         failedJobsHistoryLimit: 1
         jobTemplate:
-          metadata:
-            creationTimestamp: null
           spec:
             template:
               metadata:
-                creationTimestamp: null
                 labels:
-                  application: spilo-logical-backup
-                  cluster-name: "postgres-{{.metadata.name}}"
+                  application: postgres-logical-backup
+                  cluster-name: postgres-{{.metadata.name}}
               spec:
                 containers:
-                  - env:
-                      - name: POD_NAMESPACE
-                        valueFrom:
-                          fieldRef:
-                            apiVersion: v1
-                            fieldPath: metadata.namespace
+                  - envFrom:
+                      - secretKeyRef:
+                          name: backup-postgres-{{ .metadata.name }}-config
+                    env:
+                      - name: RESTIC_REPOSITORY
+                        value: s3:$(AWS_ENDPOINT_URL)/$(BACKUP_S3_BUCKET)
                       - name: PGPASSWORD
                         valueFrom:
                           secretKeyRef:
                             key: password
-                            name: "postgres.postgres-{{.metadata.name}}.credentials"
+                            name: postgres.postgres-{{.metadata.name}}.credentials
                       - name: PGHOST
                         value: postgres-{{.metadata.name}}
-                      - name: AWS_SECRET_ACCESS_KEY
-                        valueFrom:
-                          secretKeyRef:
-                            key: AWS_SECRET_ACCESS_KEY
-                            name: postgres-operator-cluster-environment
                       - name: PGPORT
                         value: "5432"
-                      - name: AWS_ACCESS_KEY_ID
-                        valueFrom:
-                          secretKeyRef:
-                            key: AWS_ACCESS_KEY_ID
-                            name: postgres-operator-cluster-environment
-                      - name: AWS_SECRET_ACCESS_KEY
-                        valueFrom:
-                          secretKeyRef:
-                            key: AWS_SECRET_ACCESS_KEY
-                            name: postgres-operator-cluster-environment
-                      - name: LOGICAL_BACKUP_S3_ENDPOINT
-                        valueFrom:
-                          secretKeyRef:
-                            key: AWS_ENDPOINT_URL
-                            name: postgres-operator-cluster-environment
-                      - name: AWS_S3_FORCE_PATH_STYLE
-                        valueFrom:
-                          secretKeyRef:
-                            key: AWS_S3_FORCE_PATH_STYLE
-                            name: postgres-operator-cluster-environment
-                      - name: LOGICAL_BACKUP_S3_REGION
-                        valueFrom:
-                          secretKeyRef:
-                            key: AWS_REGION
-                            name: postgres-operator-cluster-environment
-                      - name: SCOPE
-                        value: postgres-{{.metadata.name}}
                       - name: PGSSLMODE
                         value: prefer
                       - name: PGDATABASE
                         value: postgres
-                      - name: LOGICAL_BACKUP_S3_BUCKET
-                        value: "{{.spec.backup.bucket}}"
-                      - name: LOGICAL_BACKUP_S3_SSE
-                        value: AES256
-                      - name: PG_VERSION
-                        value: "12"
                       - name: PGUSER
                         value: postgres
-                      - name: CLUSTER_NAME_LABEL
-                        value: cluster-name
-                    image: docker.io/flanksource/postgres-backups:0.1.5
+                      - name: PG_VERSION
+                        value: "12"
+                    image: '{{ kget (print "secret/postgres-operator/backup-postgres-" .metadata.name "-config") "BACKUP_SCHEDULE" }}'
                     imagePullPolicy: IfNotPresent
                     name: backup-postgres-{{.metadata.name}}
-                    ports:
-                      - containerPort: 8080
-                        protocol: TCP
-                      - containerPort: 5432
-                        protocol: TCP
-                      - containerPort: 8008
-                        protocol: TCP
                     resources:
                       limits:
                         cpu: 500m
@@ -228,17 +200,14 @@ spec:
                 dnsPolicy: ClusterFirst
                 restartPolicy: Never
                 schedulerName: default-scheduler
-                securityContext: {}
-                serviceAccount: postgres-pod
-                serviceAccountName: postgres-pod
                 terminationGracePeriodSeconds: 30
-        schedule: '{{.spec.backup.schedule | default "0 2 * * *" }}'
+        schedule: '{{ kget (print "secret/postgres-operator/backup-postgres-" .metadata.name "-config") "BACKUP_IMAGE" }}'
         successfulJobsHistoryLimit: 3
         suspend: false
     - apiVersion: canaries.flanksource.com/v1
       kind: Canary
       metadata:
-        name: "postgres-backup-{{.metadata.name}}"
+        name: postgres-backup-{{.metadata.name}}
         namespace: postgres-operator
       spec:
         interval: 14400 #4h
@@ -260,25 +229,25 @@ spec:
               key: AWS_REGION
               name: postgres-operator-cluster-environment
         s3Bucket:
-          - description: "{{.metadata.name}} (backup)"
-            bucket: "{{.spec.backup.bucket}}"
+          - description: '{{.metadata.name}} (backup)'
+            bucket: '{{ kget (print "secret/postgres-operator/backup-postgres-" .metadata.name "-config") "LOGICAL_BACKUP_S3_BUCKET" }}'
             region: $LOGICAL_BACKUP_S3_REGION
             endpoint: $AWS_ENDPOINT
             secretKey: $AWS_SECRET_ACCESS_KEY
             accessKey: $AWS_ACCESS_KEY_ID
-            objectPath: "postgres-{{.metadata.name}}"
-            minSize: 10240 #10KiB
+            objectPath: postgres-{{.metadata.name}}
+            minSize: 10240 # 10KiB
             maxAge: 86400 # 24 hours
             usePathStyle: true
     - apiVersion: canaries.flanksource.com/v1
       kind: Canary
       metadata:
-        name: "postgres-connection-{{.metadata.name}}"
+        name: postgres-connection-{{.metadata.name}}
         namespace: postgres-operator
         annotations:
           # don't let quack try and template username and password
-          quack.pusher.com/left-delim: "[["
-          quack.pusher.com/right-delim: "]]"
+          quack.pusher.com/left-delim: '[['
+          quack.pusher.com/right-delim: ']]'
       spec:
         interval: 30
         env:
@@ -291,8 +260,8 @@ spec:
               key: password
               name: postgres.postgres-{{.metadata.name}}.credentials
         postgres:
-          - connection: 'user={{ "{{" }}.username{{ "}}" }} password={{ "{{" }}.password{{ "}}" }} host=postgres-{{.metadata.name}}.postgres-operator port=5432 dbname=postgres sslmode=disable'
-            query: "SELECT 1"
+          - connection: user={{ "{{" }}.username{{ "}}" }} password={{ "{{" }}.password{{ "}}" }} host=postgres-{{.metadata.name}}.postgres-operator port=5432 dbname=postgres sslmode=disable
+            query: SELECT 1
             results: 1
             driver: postgres
-            description: "{{.metadata.name}} (heartbeat)"
+            description: '{{.metadata.name}} (heartbeat)'
