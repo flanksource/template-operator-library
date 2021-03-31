@@ -162,69 +162,12 @@ spec:
                   cluster-name: postgres-{{.metadata.name}}
               spec:
                 containers:
-                  - env:
-                      - name: AWS_ACCESS_KEY_ID
-                        valueFrom:
-                          secretKeyRef:
-                            key: AWS_ACCESS_KEY_ID
-                            name: backup-postgres-{{ .metadata.name }}-config
-                      - name: AWS_SECRET_ACCESS_KEY
-                        valueFrom:
-                          secretKeyRef:
-                            key: AWS_SECRET_ACCESS_KEY
-                            name: backup-postgres-{{ .metadata.name }}-config
-                      - name: AWS_ENDPOINT_URL
-                        valueFrom:
-                          secretKeyRef:
-                            key: AWS_ENDPOINT_URL
-                            name: backup-postgres-{{ .metadata.name }}-config
-                      - name: AWS_DEFAULT_REGION
-                        valueFrom:
-                          secretKeyRef:
-                            key: AWS_REGION
-                            name: backup-postgres-{{ .metadata.name }}-config
-                      - name: BACKUP_S3_BUCKET
-                        valueFrom:
-                          secretKeyRef:
-                            key: BACKUP_S3_BUCKET
-                            name: backup-postgres-{{ .metadata.name }}-config
+                  - envFrom:
+                      - secretKeyRef:
+                          name: backup-postgres-{{ .metadata.name }}-config
+                    env:
                       - name: RESTIC_REPOSITORY
                         value: s3:$(AWS_ENDPOINT_URL)/$(BACKUP_S3_BUCKET)
-                      - name: RESTIC_PASSWORD
-                        valueFrom:
-                          secretKeyRef:
-                            key: RESTIC_PASSWORD
-                            name: backup-postgres-{{ .metadata.name }}-config
-                      - name: BACKUP_RETENTION_KEEP_LAST
-                        valueFrom:
-                          secretKeyRef:
-                            key: BACKUP_RETENTION_KEEP_LAST
-                            name: backup-postgres-{{ .metadata.name }}-config
-                      - name: BACKUP_RETENTION_KEEP_HOURLY
-                        valueFrom:
-                          secretKeyRef:
-                            key: BACKUP_RETENTION_KEEP_HOURLY
-                            name: backup-postgres-{{ .metadata.name }}-config
-                      - name: BACKUP_RETENTION_KEEP_DAILY
-                        valueFrom:
-                          secretKeyRef:
-                            key: BACKUP_RETENTION_KEEP_DAILY
-                            name: backup-postgres-{{ .metadata.name }}-config
-                      - name: BACKUP_RETENTION_KEEP_WEEKLY
-                        valueFrom:
-                          secretKeyRef:
-                            key: BACKUP_RETENTION_KEEP_WEEKLY
-                            name: backup-postgres-{{ .metadata.name }}-config
-                      - name: BACKUP_RETENTION_KEEP_MONTHLY
-                        valueFrom:
-                          secretKeyRef:
-                            key: BACKUP_RETENTION_KEEP_MONTHLY
-                            name: backup-postgres-{{ .metadata.name }}-config
-                      - name: BACKUP_RETENTION_KEEP_YEARLY
-                        valueFrom:
-                          secretKeyRef:
-                            key: BACKUP_RETENTION_KEEP_YEARLY
-                            name: backup-postgres-{{ .metadata.name }}-config
                       - name: PGPASSWORD
                         valueFrom:
                           secretKeyRef:
