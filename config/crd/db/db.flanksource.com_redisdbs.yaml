@@ -108,9 +108,12 @@ spec:
                       used
                     type: string
                 type: object
+              version:
+                type: string
             required:
             - redis
             - sentinel
+            - version
             type: object
           status:
             properties:
