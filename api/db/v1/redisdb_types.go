@@ -23,6 +23,7 @@ type RedisDBList struct {
 }
 
 type RedisDBSpec struct {
+	Version  string       `json:"version"`
 	Redis    RedisSpec    `json:"redis"`
 	Sentinel SentinelSpec `json:"sentinel"`
 	Storage  Storage      `json:"storage,omitempty"`
