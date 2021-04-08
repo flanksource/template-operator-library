@@ -28,6 +28,7 @@ type PostgresqlDBSpec struct {
 	// +kubebuilder:validation:Optional
 	Backup     PostgresqlBackup  `json:"backup,omitempty"`
 	Parameters map[string]string `json:"parameters,omitempty"`
+	Replicas   int               `yaml:"replicas,omitempty" json:"replicas,omitempty"`
 }
 
 type PostgresqlDBStatus struct {
