@@ -30,7 +30,7 @@ spec:
                   - name: elasticsearch
                     env:
                       - name: ES_JAVA_OPTS
-                        value: '-Xms{{ .spec.heap | default "2Gi" | strings.ReplaceAll "Ki" "k" | strings.ReplaceAll "Mi" "m" | strings.ReplaceAll "Gi" "g"  }} -Xmx{{ .spec.mem.requests | default "2Gi" | strings.ReplaceAll "Ki" "k" | strings.ReplaceAll "Mi" "m" | strings.ReplaceAll "Gi" "g" }}'
+                        value: -Xms{{ .spec.heap | default "2Gi" | strings.ReplaceAll "Ki" "k" | strings.ReplaceAll "Mi" "m" | strings.ReplaceAll "Gi" "g"  }} -Xmx{{ .spec.mem.requests | default "2Gi" | strings.ReplaceAll "Ki" "k" | strings.ReplaceAll "Mi" "m" | strings.ReplaceAll "Gi" "g" }}
                     resources:
                       requests:
                         memory: '{{ .spec.resources.requests.memory | default "2Gi" }}'
@@ -88,9 +88,9 @@ spec:
         tls:
           - secretName: '{{ .metadata.name }}-kibana-tls'
             hosts:
-              - 'kibana-{{ .metadata.name }}.{{.spec.domain}}'
+              - kibana-{{ .metadata.name }}.{{.spec.domain}}
         rules:
-          - host: 'kibana-{{ .metadata.name }}.{{.spec.domain}}'
+          - host: kibana-{{ .metadata.name }}.{{.spec.domain}}
             http:
               paths:
                 - backend:

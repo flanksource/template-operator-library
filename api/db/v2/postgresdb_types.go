@@ -1,4 +1,4 @@
-package v1
+package v2
 
 import (
 	kommonsv1 "github.com/flanksource/kommons/api/v1"
@@ -6,6 +6,7 @@ import (
 )
 
 // +kubebuilder:object:root=true
+// +kubebuilder:storageversion
 
 type PostgresqlDB struct {
 	metav1.TypeMeta   `json:",inline"`
@@ -29,10 +30,6 @@ type PostgresqlDBSpec struct {
 	Backup     PostgresqlBackup  `json:"backup,omitempty"`
 	Parameters map[string]string `json:"parameters,omitempty"`
 	Replicas   int               `yaml:"replicas,omitempty" json:"replicas,omitempty"`
-	// Deprecated
-	CPU string `json:"cpu,omitempty"`
-	// Deprecated
-	Memory string `json:"memory,omitempty"`
 }
 
 type PostgresqlDBStatus struct {
@@ -40,8 +37,18 @@ type PostgresqlDBStatus struct {
 }
 
 type PostgresqlBackup struct {
-	Bucket   string `json:"bucket,omitempty"`
-	Schedule string `json:"schedule,omitempty"`
+	Bucket    string          `json:"bucket,omitempty"`
+	Schedule  string          `json:"schedule,omitempty"`
+	Retention BackupRetention `yaml:"retention,omitempty" json:"retention,omitempty"`
+}
+
+type BackupRetention struct {
+	KeepLast    int `yaml:"keepLast,omitempty" json:"keepLast,omitempty"`
+	KeepHourly  int `yaml:"keepHourly,omitempty" json:"keepHourly,omitempty"`
+	KeepDaily   int `yaml:"keepDaily,omitempty" json:"keepDaily,omitempty"`
+	KeepWeekly  int `yaml:"keepWeekly,omitempty" json:"keepWeekly,omitempty"`
+	KeepMonthly int `yaml:"keepMonthly,omitempty" json:"keepMonthly,omitempty"`
+	KeepYearly  int `yaml:"keepYearly,omitempty" json:"keepYearly,omitempty"`
 }
 
 func init() {
