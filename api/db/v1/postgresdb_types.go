@@ -29,6 +29,10 @@ type PostgresqlDBSpec struct {
 	Backup     PostgresqlBackup  `json:"backup,omitempty"`
 	Parameters map[string]string `json:"parameters,omitempty"`
 	Replicas   int               `yaml:"replicas,omitempty" json:"replicas,omitempty"`
+	// Deprecated
+	CPU string `json:"cpu,omitempty"`
+	// Deprecated
+	Memory string `json:"memory,omitempty"`
 }
 
 type PostgresqlDBStatus struct {
