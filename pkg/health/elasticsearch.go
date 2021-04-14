@@ -70,6 +70,7 @@ func ElasticsearchCheck(c *kommons.Client, namespace string) (bytes.Buffer, erro
 	return testlog, nil
 }
 
+// nolint: deadcode
 func basicAuth(username, password string) string {
 	auth := username + ":" + password
 	return base64.StdEncoding.EncodeToString([]byte(auth))
