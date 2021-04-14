@@ -10,11 +10,11 @@ spec:
     - apiVersion: databases.spotahome.com/v1
       kind: RedisFailover
       metadata:
-        name: "{{.metadata.name}}"
-        namespace: "{{.metadata.namespace}}"
+        name: '{{.metadata.name}}'
+        namespace: '{{.metadata.namespace}}'
       spec:
         sentinel:
-          image: 'docker.io/library/redis:{{ .spec.version | default "5.0-alpine" }}'
+          image: docker.io/library/redis:{{ .spec.version | default "5.0-alpine" }}
           replicas: '{{.spec.sentinel.replicas | default "3"}}'
           resources:
             requests:
@@ -24,7 +24,7 @@ spec:
               cpu: '{{.spec.sentinel.resources.limits.cpu | default "100m"}}'
               memory: '{{.spec.sentinel.resources.limits.memory | default "100Mi"}}'
         redis:
-          image: 'docker.io/library/redis:{{ .spec.version | default "5.0-alpine" }}'
+          image: docker.io/library/redis:{{ .spec.version | default "5.0-alpine" }}
           replicas: '{{.spec.redis.replicas | default "3"}}'
           resources:
             requests:
@@ -36,7 +36,7 @@ spec:
           storage:
             persistentVolumeClaim:
               metadata:
-                name: "{{.metadata.name}}-persistent-data"
+                name: '{{.metadata.name}}-persistent-data'
               spec:
                 accessModes:
                   - ReadWriteOnce
