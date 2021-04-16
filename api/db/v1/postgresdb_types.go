@@ -6,6 +6,7 @@ import (
 )
 
 // +kubebuilder:object:root=true
+// +kubebuilder:storageversion
 
 type PostgresqlDB struct {
 	metav1.TypeMeta   `json:",inline"`
