@@ -351,7 +351,7 @@ spec:
               name: postgres-operator-cluster-environment
         s3Bucket:
           - description: '{{.metadata.name}} (backup)'
-            bucket: '{{.spec.backup.bucket}}'
+            bucket: '{{ .spec.backup.bucket | default (kget "secret/postgres-operator/postgres-operator-cluster-environment" "BACKUP_S3_BUCKET") }}'
             region: $LOGICAL_BACKUP_S3_REGION
             endpoint: $AWS_ENDPOINT
             secretKey: $AWS_SECRET_ACCESS_KEY
