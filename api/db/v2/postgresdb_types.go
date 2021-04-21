@@ -36,6 +36,8 @@ type PostgresqlDBStatus struct {
 }
 
 type PostgresqlBackup struct {
+	// +kubebuilder:default=true
+	Restic    bool            `yaml:"restic,omitempty" json:"restic,omitempty"`
 	Bucket    string          `json:"bucket,omitempty"`
 	Schedule  string          `json:"schedule,omitempty"`
 	Retention BackupRetention `yaml:"retention,omitempty" json:"retention,omitempty"`

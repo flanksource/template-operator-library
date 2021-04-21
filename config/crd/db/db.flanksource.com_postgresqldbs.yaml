@@ -32,6 +32,9 @@ spec:
                   properties:
                     bucket:
                       type: string
+                    restic:
+                      default: false
+                      type: boolean
                     schedule:
                       type: string
                   type: object
@@ -127,6 +130,9 @@ spec:
                   properties:
                     bucket:
                       type: string
+                    restic:
+                      default: true
+                      type: boolean
                     retention:
                       properties:
                         keepDaily:
