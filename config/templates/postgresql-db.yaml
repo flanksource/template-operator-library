@@ -57,7 +57,7 @@ spec:
             value: '{{.spec.backup.bucket}}'
           - name: CLONE_WAL_BUCKET_SCOPE_SUFFIX
             value: /
-        numberOfInstances: '{{ .spec.replicas }}'
+        numberOfInstances: '{{ .spec.replicas | default "2" }}'
         patroni:
           initdb:
             data-checksums: "true"
@@ -74,11 +74,11 @@ spec:
           synchronous_mode_strict: false
           ttl: 30
         podAnnotations:
-          com.flanksource.infra.logs/processors.0.drop_event.when.contains.message: "no action.  i am a secondary and i am following a leader"
-          com.flanksource.infra.logs/processors.1.drop_event.when.contains.message: "no action.  i am the leader with the lock"
-          com.flanksource.infra.logs/processors.2.drop_event.when.contains.message: "INFO: Lock owner:"
-          com.flanksource.infra.logs/processors.3.drop_event.when.contains.message: "INFO: does not have lock"
-          com.flanksource.infra.logs/processors.4.dissect.tokenizer: "%{date} %{time} %{TZ} [%{PID}] %{user} %{level}: %{log}"
+          com.flanksource.infra.logs/processors.0.drop_event.when.contains.message: no action.  i am a secondary and i am following a leader
+          com.flanksource.infra.logs/processors.1.drop_event.when.contains.message: no action.  i am the leader with the lock
+          com.flanksource.infra.logs/processors.2.drop_event.when.contains.message: 'INFO: Lock owner:'
+          com.flanksource.infra.logs/processors.3.drop_event.when.contains.message: 'INFO: does not have lock'
+          com.flanksource.infra.logs/processors.4.dissect.tokenizer: '%{date} %{time} %{TZ} [%{PID}] %{user} %{level}: %{log}'
         postgresql:
           parameters: '{{ (coll.Dict "logging_collector" "false" "log_destination" "stderr" "log_line_prefix" "%m [%p] %q%u@%d " ) | coll.Merge ( .spec.parameters | default (coll.Dict) ) | data.ToJSON }}'
           version: "12"
@@ -130,7 +130,91 @@ spec:
         volume:
           size: '{{ .spec.storage.size | default "20Gi" }}'
           storageClass: '{{ .spec.storage.storageClass | default "" }}'
-    - apiVersion: batch/v1beta1
+    # When restic backup is enabled (.spec.backup.restic is true), use restic as backup method
+    - when: '{{ .spec.backup.restic }}'
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: backup-postgres-{{ .metadata.name }}-config
+        namespace: postgres-operator
+      data:
+        AWS_ACCESS_KEY_ID: '{{ kget "secret/postgres-operator/postgres-operator-cluster-environment" "AWS_ACCESS_KEY_ID" }}'
+        AWS_SECRET_ACCESS_KEY: '{{ kget "secret/postgres-operator/postgres-operator-cluster-environment" "AWS_SECRET_ACCESS_KEY" }}'
+        AWS_ENDPOINT_URL: '{{ kget "secret/postgres-operator/postgres-operator-cluster-environment" "AWS_ENDPOINT_URL" }}'
+        AWS_REGION: '{{ kget "secret/postgres-operator/postgres-operator-cluster-environment" "AWS_REGION" }}'
+        RESTIC_PASSWORD: '{{ kget "secret/postgres-operator/postgres-operator-cluster-environment" "BACKUP_PASSWORD" }}'
+        BACKUP_IMAGE: '{{ kget "secret/postgres-operator/postgres-operator-cluster-environment" "BACKUP_IMAGE" }}'
+        BACKUP_S3_BUCKET: '{{ .spec.backup.bucket | default (kget "secret/postgres-operator/postgres-operator-cluster-environment" "BACKUP_S3_BUCKET") }}'
+        BACKUP_SCHEDULE: '{{ .spec.backup.schedule | default (kget "secret/postgres-operator/postgres-operator-cluster-environment" "BACKUP_SCHEDULE") }}'
+        BACKUP_RETENTION_KEEP_LAST: '{{ .spec.backup.retention.keepLast | default (kget "secret/postgres-operator/postgres-operator-cluster-environment" "BACKUP_RETENTION_KEEP_LAST") }}'
+        BACKUP_RETENTION_KEEP_HOURLY: '{{ .spec.backup.retention.keepHourly | default (kget "secret/postgres-operator/postgres-operator-cluster-environment" "BACKUP_RETENTION_KEEP_HOURLY") }}'
+        BACKUP_RETENTION_KEEP_DAILY: '{{ .spec.backup.retention.keepDaily | default (kget "secret/postgres-operator/postgres-operator-cluster-environment" "BACKUP_RETENTION_KEEP_DAILY") }}'
+        BACKUP_RETENTION_KEEP_WEEKLY: '{{ .spec.backup.retention.keepWeekly | default (kget "secret/postgres-operator/postgres-operator-cluster-environment" "BACKUP_RETENTION_KEEP_WEEKLY") }}'
+        BACKUP_RETENTION_KEEP_MONTHLY: '{{ .spec.backup.retention.keepMonthly | default (kget "secret/postgres-operator/postgres-operator-cluster-environment" "BACKUP_RETENTION_KEEP_MONTHLY") }}'
+        BACKUP_RETENTION_KEEP_YEARLY: '{{ .spec.backup.retention.keepYearly | default (kget "secret/postgres-operator/postgres-operator-cluster-environment" "BACKUP_RETENTION_KEEP_YEARLY") }}'
+    - when: '{{ .spec.backup.restic }}'
+      apiVersion: batch/v1beta1
+      kind: CronJob
+      metadata:
+        name: backup-postgres-{{.metadata.name}}
+        namespace: postgres-operator
+      spec:
+        concurrencyPolicy: Forbid
+        failedJobsHistoryLimit: 1
+        jobTemplate:
+          spec:
+            template:
+              metadata:
+                labels:
+                  application: postgres-logical-backup
+                  cluster-name: postgres-{{.metadata.name}}
+              spec:
+                containers:
+                  - envFrom:
+                      - secretRef:
+                          name: backup-postgres-{{ .metadata.name }}-config
+                    env:
+                      - name: RESTIC_REPOSITORY
+                        value: s3:$(AWS_ENDPOINT_URL)/$(BACKUP_S3_BUCKET)
+                      - name: PGPASSWORD
+                        valueFrom:
+                          secretKeyRef:
+                            key: password
+                            name: postgres.postgres-{{.metadata.name}}.credentials
+                      - name: PGHOST
+                        value: postgres-{{.metadata.name}}
+                      - name: PGPORT
+                        value: "5432"
+                      - name: PGSSLMODE
+                        value: prefer
+                      - name: PGDATABASE
+                        value: postgres
+                      - name: PGUSER
+                        value: postgres
+                      - name: PG_VERSION
+                        value: "12"
+                    image: '{{ kget (print "secret/postgres-operator/backup-postgres-" .metadata.name "-config") "BACKUP_IMAGE" }}'
+                    imagePullPolicy: IfNotPresent
+                    name: backup-postgres-{{.metadata.name}}
+                    resources:
+                      limits:
+                        cpu: 500m
+                        memory: 512Mi
+                      requests:
+                        cpu: 10m
+                        memory: 128Mi
+                    terminationMessagePath: /dev/termination-log
+                    terminationMessagePolicy: File
+                dnsPolicy: ClusterFirst
+                restartPolicy: Never
+                schedulerName: default-scheduler
+                terminationGracePeriodSeconds: 30
+        schedule: '{{ kget (print "secret/postgres-operator/backup-postgres-" .metadata.name "-config") "BACKUP_SCHEDULE" }}'
+        successfulJobsHistoryLimit: 3
+        suspend: false
+    # TODO: implement canary check for restic backup and add Canary object here
+    - when: '{{ not .spec.backup.restic }}'
+      apiVersion: batch/v1beta1
       kind: CronJob
       metadata:
         name: backup-postgres-{{.metadata.name}}
@@ -240,7 +324,8 @@ spec:
         schedule: '{{.spec.backup.schedule | default "0 2 * * *" }}'
         successfulJobsHistoryLimit: 3
         suspend: false
-    - apiVersion: canaries.flanksource.com/v1
+    - when: '{{ not .spec.backup.restic }}'
+      apiVersion: canaries.flanksource.com/v1
       kind: Canary
       metadata:
         name: postgres-backup-{{.metadata.name}}
@@ -280,6 +365,10 @@ spec:
       metadata:
         name: postgres-connection-{{.metadata.name}}
         namespace: postgres-operator
+        annotations:
+          # don't let quack try and template username and password
+          quack.pusher.com/left-delim: '[['
+          quack.pusher.com/right-delim: ']]'
       spec:
         interval: 30
         env:
