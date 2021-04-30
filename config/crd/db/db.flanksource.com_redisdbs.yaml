@@ -113,7 +113,6 @@ spec:
             required:
             - redis
             - sentinel
-            - version
             type: object
           status:
             properties:
