@@ -1,0 +1,48 @@
+apiVersion: db.flanksource.com/v1
+kind: KafkaCluster
+metadata:
+  name: dev
+  namespace: default
+spec:
+  kafka:
+    replicas: 3
+    storage:
+      storageClass: local-path
+      size: 10Gi
+    version: 2.8.0-debian-10-r0
+    resources:
+      requests:
+        cpu: 500m
+        memory: 2Gi
+      limits:
+        cpu: 1000m
+        memory: 4Gi
+  zookeeper:
+    version: 3.7.0-debian-10-r0
+    replicas: 3
+    storage:
+      storageClass: local-path
+      size: 10Gi
+    resources:
+      requests:
+        cpu: 250m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dev-nodeport
+  namespace: default
+spec:
+  ports:
+    - name: client
+      port: 9092
+      protocol: TCP
+      targetPort: 9092
+      nodePort: 32092
+  type: NodePort
+  selector:
+    app.kubernetes.io/name: dev-kafka
