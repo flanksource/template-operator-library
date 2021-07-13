@@ -24,11 +24,14 @@ type MongoDBList struct {
 }
 
 type MongoDBSpec struct {
-	Storage  Storage `json:"storage,omitempty"`
-	Database string  `json:"database,omitempty"`
-	User     string  `json:"user,omitempty"`
-	CPU      string  `json:"cpu,omitempty"`
-	Memory   string  `json:"memory,omitempty"`
+	PodResources `json:",inline"`
+	Storage      Storage `json:"storage,omitempty"`
+	Database     string  `json:"database,omitempty"`
+	User         string  `json:"user,omitempty"`
+	// Deprecated
+	CPU string `json:"cpu,omitempty"`
+	// Deprecated
+	Memory string `json:"memory,omitempty"`
 }
 
 type MongoDBStatus struct {

@@ -58,11 +58,11 @@ spec:
                   - containerPort: 27017
                 resources:
                   requests:
-                    memory: '{{ .spec.memory | default "64Mi" }}'
-                    cpu: '{{ .spec.cpu | default "50m" }}'
+                    memory: 64Mi
+                    cpu: 50m
                   limits:
-                    memory: '{{ .spec.memory | default "300Mi" }}'
-                    cpu: '{{ .spec.cpu | default "100m" }}'
+                    memory: 300Mi
+                    cpu: 100m
                 volumeMounts:
                   - mountPath: /var/lib/mongodb/data
                     name: "mongodata-{{ .metadata.name }}"
@@ -84,8 +84,7 @@ spec:
         namespace: '{{ .metadata.namespace }}'
       spec:
         ports:
-        - name: "27017"
-          port: 27017
+        - port: 27017
           targetPort: 27017
         selector:
           app.kubernetes.io/name: mongodb
