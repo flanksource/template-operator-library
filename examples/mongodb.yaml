@@ -1,0 +1,18 @@
+apiVersion: db.flanksource.com/v1
+kind: MongoDB
+metadata:
+  name: test-mongo
+  namespace: mongo
+spec:
+  database: foo
+  user: bar
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 100m
+      memory: 300Mi
+  storage:
+    size: 5Gi
+    storageClass: local-path

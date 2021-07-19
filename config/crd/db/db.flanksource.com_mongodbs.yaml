@@ -4,14 +4,14 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.4.0
   creationTimestamp: null
-  name: elasticsearchdbs.db.flanksource.com
+  name: mongodbs.db.flanksource.com
 spec:
   group: db.flanksource.com
   names:
-    kind: ElasticsearchDB
-    listKind: ElasticsearchDBList
-    plural: elasticsearchdbs
-    singular: elasticsearchdb
+    kind: MongoDB
+    listKind: MongoDBList
+    plural: mongodbs
+    singular: mongodb
   scope: Namespaced
   versions:
     - name: v1
@@ -28,17 +28,14 @@ spec:
               type: object
             spec:
               properties:
-                domain:
+                cpu:
+                  description: Deprecated
                   type: string
-                heap:
+                database:
                   type: string
-                ingress:
-                  properties:
-                    annotations:
-                      additionalProperties:
-                        type: string
-                      type: object
-                  type: object
+                memory:
+                  description: Deprecated
+                  type: string
                 replicas:
                   type: integer
                 resources:
@@ -72,7 +69,7 @@ spec:
                       description: Storage class to use. If not set default will be used
                       type: string
                   type: object
-                version:
+                user:
                   type: string
               type: object
             status:

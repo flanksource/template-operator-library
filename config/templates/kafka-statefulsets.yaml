@@ -11,7 +11,7 @@ spec:
       kind: Secret
       metadata:
         name: kafka-{{ .metadata.name }}-credentials
-        namespace: "{{ .metadata.namespace }}"
+        namespace: '{{ .metadata.namespace }}'
       type: Opaque
       stringData:
         KAFKA_CLIENT_USER: kafka
@@ -19,10 +19,10 @@ spec:
     - apiVersion: v1
       kind: ConfigMap
       metadata:
-        name: "{{.metadata.name}}-kafka-scripts"
-        namespace: "{{.metadata.namespace}}"
+        name: '{{.metadata.name}}-kafka-scripts'
+        namespace: '{{.metadata.namespace}}'
         labels:
-          app.kubernetes.io/name: "{{.metadata.name}}-kafka"
+          app.kubernetes.io/name: '{{.metadata.name}}-kafka'
       data:
         setup.sh: |-
           #!/bin/bash
@@ -38,8 +38,8 @@ spec:
     - apiVersion: v1
       kind: Service
       metadata:
-        name: "{{.metadata.name}}-zookeeper-headless"
-        namespace: "{{.metadata.namespace}}"
+        name: '{{.metadata.name}}-zookeeper-headless'
+        namespace: '{{.metadata.namespace}}'
         labels:
           app.kubernetes.io/name: zookeeper
           app.kubernetes.io/component: zookeeper
@@ -58,15 +58,15 @@ spec:
             port: 3888
             targetPort: election
         selector:
-          app.kubernetes.io/name: "{{.metadata.name}}-zookeeper"
+          app.kubernetes.io/name: '{{.metadata.name}}-zookeeper'
           app.kubernetes.io/component: zookeeper
     - apiVersion: v1
       kind: Service
       metadata:
-        name: "{{.metadata.name}}-zookeeper"
-        namespace: "{{.metadata.namespace}}"
+        name: '{{.metadata.name}}-zookeeper'
+        namespace: '{{.metadata.namespace}}'
         labels:
-          app.kubernetes.io/name: "{{.metadata.name}}-zookeeper"
+          app.kubernetes.io/name: '{{.metadata.name}}-zookeeper'
           app.kubernetes.io/component: zookeeper
       spec:
         type: ClusterIP
@@ -81,15 +81,15 @@ spec:
             port: 3888
             targetPort: election
         selector:
-          app.kubernetes.io/name: "{{.metadata.name}}-zookeeper"
+          app.kubernetes.io/name: '{{.metadata.name}}-zookeeper'
           app.kubernetes.io/component: zookeeper
     - apiVersion: v1
       kind: Service
       metadata:
-        name: "{{.metadata.name}}-kafka-headless"
-        namespace: "{{.metadata.namespace}}"
+        name: '{{.metadata.name}}-kafka-headless'
+        namespace: '{{.metadata.namespace}}'
         labels:
-          app.kubernetes.io/name: "{{.metadata.name}}-kafka"
+          app.kubernetes.io/name: '{{.metadata.name}}-kafka'
           app.kubernetes.io/component: kafka
       spec:
         type: ClusterIP
@@ -104,15 +104,15 @@ spec:
             protocol: TCP
             targetPort: kafka-internal
         selector:
-          app.kubernetes.io/name: "{{.metadata.name}}-kafka"
+          app.kubernetes.io/name: '{{.metadata.name}}-kafka'
           app.kubernetes.io/component: kafka
     - apiVersion: v1
       kind: Service
       metadata:
-        name: "{{.metadata.name}}-kafka"
-        namespace: "{{.metadata.namespace}}"
+        name: '{{.metadata.name}}-kafka'
+        namespace: '{{.metadata.namespace}}'
         labels:
-          app.kubernetes.io/name: "{{.metadata.name}}-kafka"
+          app.kubernetes.io/name: '{{.metadata.name}}-kafka'
           app.kubernetes.io/component: kafka
       spec:
         type: ClusterIP
@@ -123,42 +123,41 @@ spec:
             targetPort: kafka-client
             nodePort: null
         selector:
-          app.kubernetes.io/name: "{{.metadata.name}}-kafka"
+          app.kubernetes.io/name: '{{.metadata.name}}-kafka'
           app.kubernetes.io/component: kafka
-
     - apiVersion: v1
       kind: ServiceAccount
       metadata:
-        name: "{{.metadata.name}}-kafka"
-        namespace: "{{.metadata.namespace}}"
+        name: '{{.metadata.name}}-kafka'
+        namespace: '{{.metadata.namespace}}'
         labels:
-          app.kubernetes.io/name: "{{.metadata.name}}-kafka"
+          app.kubernetes.io/name: '{{.metadata.name}}-kafka'
           app.kubernetes.io/component: kafka
       automountServiceAccountToken: true
     - apiVersion: apps/v1
       kind: StatefulSet
       metadata:
-        name: "{{.metadata.name}}-zookeeper"
-        namespace: "{{.metadata.namespace}}"
+        name: '{{.metadata.name}}-zookeeper'
+        namespace: '{{.metadata.namespace}}'
         labels:
-          app.kubernetes.io/name: "{{.metadata.name}}-zookeeper"
+          app.kubernetes.io/name: '{{.metadata.name}}-zookeeper'
           app.kubernetes.io/component: zookeeper
           role: zookeeper
       spec:
-        serviceName: "{{.metadata.name}}-zookeeper-headless"
+        serviceName: '{{.metadata.name}}-zookeeper-headless'
         replicas: '{{.spec.zookeeper.replicas | default "3"}}'
         podManagementPolicy: Parallel
         updateStrategy:
           type: RollingUpdate
         selector:
           matchLabels:
-            app.kubernetes.io/name: "{{.metadata.name}}-zookeeper"
+            app.kubernetes.io/name: '{{.metadata.name}}-zookeeper'
             app.kubernetes.io/component: zookeeper
         template:
           metadata:
-            name: "{{.metadata.name}}-zookeeper"
+            name: '{{.metadata.name}}-zookeeper'
             labels:
-              app.kubernetes.io/name: "{{.metadata.name}}-zookeeper"
+              app.kubernetes.io/name: '{{.metadata.name}}-zookeeper'
               app.kubernetes.io/component: zookeeper
           spec:
             serviceAccountName: default
@@ -167,7 +166,7 @@ spec:
             containers:
               - name: zookeeper
                 image: docker.io/bitnami/zookeeper:{{.spec.zookeeper.version | default "3.7.0-debian-10-r0" }}
-                imagePullPolicy: "IfNotPresent"
+                imagePullPolicy: IfNotPresent
                 securityContext:
                   runAsUser: 1001
                 command:
@@ -211,9 +210,9 @@ spec:
                   - name: ZOO_MAX_CLIENT_CNXNS
                     value: "60"
                   - name: ZOO_4LW_COMMANDS_WHITELIST
-                    value: "srvr, mntr, ruok"
+                    value: srvr, mntr, ruok
                   - name: ZOO_LISTEN_ALLIPS_ENABLED
-                    value: "yes"
+                    value: yes
                   - name: ZOO_AUTOPURGE_INTERVAL
                     value: "0"
                   - name: ZOO_AUTOPURGE_RETAIN_COUNT
@@ -221,15 +220,15 @@ spec:
                   - name: ZOO_MAX_SESSION_TIMEOUT
                     value: "40000"
                   - name: ZOO_SERVERS
-                    value: "{{.metadata.name}}-zookeeper-0.{{.metadata.name}}-zookeeper-headless.{{.metadata.namespace}}.svc.cluster.local:2888:3888;{{.metadata.name}}-zookeeper-1.{{.metadata.name}}-zookeeper-headless.{{.metadata.namespace}}.svc.cluster.local:2888:3888;{{.metadata.name}}-zookeeper-2.{{.metadata.name}}-zookeeper-headless.{{.metadata.namespace}}.svc.cluster.local:2888:3888"
+                    value: '{{.metadata.name}}-zookeeper-0.{{.metadata.name}}-zookeeper-headless.{{.metadata.namespace}}.svc.cluster.local:2888:3888;{{.metadata.name}}-zookeeper-1.{{.metadata.name}}-zookeeper-headless.{{.metadata.namespace}}.svc.cluster.local:2888:3888;{{.metadata.name}}-zookeeper-2.{{.metadata.name}}-zookeeper-headless.{{.metadata.namespace}}.svc.cluster.local:2888:3888'
                   - name: ZOO_ENABLE_AUTH
-                    value: "no"
+                    value: no
                   - name: ZOO_HEAP_SIZE
                     value: "1024"
                   - name: ZOO_LOG_LEVEL
-                    value: "ALL"
+                    value: ALL
                   - name: ALLOW_ANONYMOUS_LOGIN
-                    value: "yes"
+                    value: yes
                   - name: POD_NAME
                     valueFrom:
                       fieldRef:
@@ -245,11 +244,9 @@ spec:
                 livenessProbe:
                   exec:
                     command:
-                      [
-                        "/bin/bash",
-                        "-c",
-                        'echo "ruok" | timeout 2 nc -w 2 localhost 2181 | grep imok',
-                      ]
+                      - /bin/bash
+                      - -c
+                      - echo "ruok" | timeout 2 nc -w 2 localhost 2181 | grep imok
                   initialDelaySeconds: 30
                   periodSeconds: 10
                   timeoutSeconds: 5
@@ -258,11 +255,9 @@ spec:
                 readinessProbe:
                   exec:
                     command:
-                      [
-                        "/bin/bash",
-                        "-c",
-                        'echo "ruok" | timeout 2 nc -w 2 localhost 2181 | grep imok',
-                      ]
+                      - /bin/bash
+                      - -c
+                      - echo "ruok" | timeout 2 nc -w 2 localhost 2181 | grep imok
                   initialDelaySeconds: 5
                   periodSeconds: 10
                   timeoutSeconds: 5
@@ -278,43 +273,43 @@ spec:
               annotations:
             spec:
               accessModes:
-                - "ReadWriteOnce"
+                - ReadWriteOnce
               resources:
                 requests:
                   storage: '{{.spec.zookeeper.storage.size | default "8Gi" }}'
-                storageClass: "{{.spec.zookeeper.storage.storageClass}}"
+                storageClass: '{{.spec.zookeeper.storage.storageClass}}'
     - apiVersion: apps/v1
       kind: StatefulSet
       metadata:
-        name: "{{.metadata.name}}-kafka"
-        namespace: "{{.metadata.namespace}}"
+        name: '{{.metadata.name}}-kafka'
+        namespace: '{{.metadata.namespace}}'
         labels:
-          app.kubernetes.io/name: "{{.metadata.name}}-kafka"
+          app.kubernetes.io/name: '{{.metadata.name}}-kafka'
           app.kubernetes.io/component: kafka
       spec:
         podManagementPolicy: Parallel
         replicas: '{{.spec.kafka.replicas | default "3" }}'
         selector:
           matchLabels:
-            app.kubernetes.io/name: "{{.metadata.name}}-kafka"
+            app.kubernetes.io/name: '{{.metadata.name}}-kafka'
             app.kubernetes.io/component: kafka
-        serviceName: "{{.metadata.name}}-kafka-headless"
+        serviceName: '{{.metadata.name}}-kafka-headless'
         updateStrategy:
-          type: "RollingUpdate"
+          type: RollingUpdate
         template:
           metadata:
             labels:
-              app.kubernetes.io/name: "{{.metadata.name}}-kafka"
+              app.kubernetes.io/name: '{{.metadata.name}}-kafka'
               app.kubernetes.io/component: kafka
           spec:
             securityContext:
               fsGroup: 1001
               runAsUser: 1001
-            serviceAccountName: "{{.metadata.name}}-kafka"
+            serviceAccountName: '{{.metadata.name}}-kafka'
             containers:
               - name: kafka
-                image: 'docker.io/bitnami/kafka:{{.spec.kafka.version | default "2.8.0-debian-10-r0" }}'
-                imagePullPolicy: "IfNotPresent"
+                image: docker.io/bitnami/kafka:{{.spec.kafka.version | default "2.8.0-debian-10-r0" }}
+                imagePullPolicy: IfNotPresent
                 command:
                   - /scripts/setup.sh
                 envFrom:
@@ -332,27 +327,27 @@ spec:
                       fieldRef:
                         fieldPath: metadata.name
                   - name: KAFKA_CFG_ZOOKEEPER_CONNECT
-                    value: "{{.metadata.name}}-zookeeper-headless"
+                    value: '{{.metadata.name}}-zookeeper-headless'
                   - name: KAFKA_INTER_BROKER_LISTENER_NAME
-                    value: "INTERNAL"
+                    value: INTERNAL
                   - name: KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP
-                    value: "INTERNAL:PLAINTEXT,CLIENT:PLAINTEXT"
+                    value: INTERNAL:PLAINTEXT,CLIENT:PLAINTEXT
                   - name: KAFKA_CFG_LISTENERS
-                    value: "INTERNAL://:9093,CLIENT://:9092"
+                    value: INTERNAL://:9093,CLIENT://:9092
                   - name: KAFKA_CFG_ADVERTISED_LISTENERS
-                    value: "INTERNAL://$(MY_POD_NAME).{{.metadata.name}}-kafka-headless.{{.metadata.namespace}}.svc.cluster.local:9093,CLIENT://$(MY_POD_IP):9092"
+                    value: INTERNAL://$(MY_POD_NAME).{{.metadata.name}}-kafka-headless.{{.metadata.namespace}}.svc.cluster.local:9093,CLIENT://$(MY_POD_IP):9092
                   - name: ALLOW_PLAINTEXT_LISTENER
-                    value: "yes"
+                    value: yes
                   - name: KAFKA_VOLUME_DIR
-                    value: "/bitnami/kafka"
+                    value: /bitnami/kafka
                   - name: KAFKA_LOG_DIR
-                    value: "/opt/bitnami/kafka/logs"
+                    value: /opt/bitnami/kafka/logs
                   - name: KAFKA_CFG_DELETE_TOPIC_ENABLE
                     value: "false"
                   - name: KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE
                     value: "true"
                   - name: KAFKA_HEAP_OPTS
-                    value: "-Xmx1024m -Xms1024m"
+                    value: -Xmx1024m -Xms1024m
                   - name: KAFKA_CFG_LOG_FLUSH_INTERVAL_MESSAGES
                     value: "10000"
                   - name: KAFKA_CFG_LOG_FLUSH_INTERVAL_MS
@@ -368,7 +363,7 @@ spec:
                   - name: KAFKA_CFG_LOG_SEGMENT_BYTES
                     value: "1073741824"
                   - name: KAFKA_CFG_LOG_DIRS
-                    value: "/bitnami/kafka/data"
+                    value: /bitnami/kafka/data
                   - name: KAFKA_CFG_DEFAULT_REPLICATION_FACTOR
                     value: "1"
                   - name: KAFKA_CFG_OFFSETS_TOPIC_REPLICATION_FACTOR
@@ -432,7 +427,7 @@ spec:
             volumes:
               - name: scripts
                 configMap:
-                  name: "{{.metadata.name}}-kafka-scripts"
+                  name: '{{.metadata.name}}-kafka-scripts'
                   defaultMode: 0755
               - name: logs
                 emptyDir: {}
@@ -441,29 +436,28 @@ spec:
               name: data
             spec:
               accessModes:
-                - "ReadWriteOnce"
+                - ReadWriteOnce
               resources:
                 requests:
                   storage: '{{.spec.kafka.storage.size | default "20Gi" }}'
-                storageClass: "{{.spec.kafka.storage.storageClass}}"
+                storageClass: '{{.spec.kafka.storage.storageClass}}'
     - apiVersion: v1
       kind: Secret
       metadata:
-        name: "{{.metadata.name}}-hq-secrets"
-        namespace: "{{.metadata.namespace}}"
+        name: '{{.metadata.name}}-hq-secrets'
+        namespace: '{{.metadata.namespace}}'
         labels:
-          app.kubernetes.io/name: "{{.metadata.name}}-hq"
+          app.kubernetes.io/name: '{{.metadata.name}}-hq'
       type: Opaque
       data:
         application-secrets.yml: ""
-
     - apiVersion: v1
       kind: ConfigMap
       metadata:
-        name: "{{.metadata.name}}-hq"
-        namespace: "{{.metadata.namespace}}"
+        name: '{{.metadata.name}}-hq'
+        namespace: '{{.metadata.namespace}}'
         labels:
-          app.kubernetes.io/name: "{{.metadata.name}}-hq"
+          app.kubernetes.io/name: '{{.metadata.name}}-hq'
       data:
         application.yml: |
           akhq:
@@ -478,10 +472,10 @@ spec:
     - apiVersion: v1
       kind: Service
       metadata:
-        name: "{{.metadata.name}}-hq"
-        namespace: "{{.metadata.namespace}}"
+        name: '{{.metadata.name}}-hq'
+        namespace: '{{.metadata.namespace}}'
         labels:
-          app.kubernetes.io/name: "{{.metadata.name}}-hq"
+          app.kubernetes.io/name: '{{.metadata.name}}-hq'
       spec:
         type: ClusterIP
         ports:
@@ -490,18 +484,17 @@ spec:
             protocol: TCP
             name: http
         selector:
-          app.kubernetes.io/name: "{{.metadata.name}}-hq"
-
+          app.kubernetes.io/name: '{{.metadata.name}}-hq'
     - apiVersion: extensions/v1beta1
       kind: Ingress
       metadata:
-        name: "{{ .metadata.name }}-hq-ingress"
-        namespace: "{{ .metadata.namespace }}"
+        name: '{{ .metadata.name }}-hq-ingress'
+        namespace: '{{ .metadata.namespace }}'
         annotations:
           kubernetes.io/tls-acme: true
       spec:
         tls:
-          - secretName: "{{ .metadata.name }}-hq-tls"
+          - secretName: '{{ .metadata.name }}-hq-tls'
             hosts:
               - '{{ .metadata.name }}-hq.{{.metadata.namespace}}.{{kget "cm/quack/quack-config" "data.domain"}}'
         rules:
@@ -509,28 +502,28 @@ spec:
             http:
               paths:
                 - backend:
-                    serviceName: "{{.metadata.name}}-hq"
+                    serviceName: '{{.metadata.name}}-hq'
                     servicePort: 80
     - apiVersion: apps/v1
       kind: Deployment
       metadata:
-        name: "{{.metadata.name}}-hq"
-        namespace: "{{.metadata.namespace}}"
+        name: '{{.metadata.name}}-hq'
+        namespace: '{{.metadata.namespace}}'
         labels:
-          app.kubernetes.io/name: "{{.metadata.name}}-hq"
+          app.kubernetes.io/name: '{{.metadata.name}}-hq'
       spec:
         replicas: 1
         selector:
           matchLabels:
-            app.kubernetes.io/name: "{{.metadata.name}}-hq"
+            app.kubernetes.io/name: '{{.metadata.name}}-hq'
         template:
           metadata:
             labels:
-              app.kubernetes.io/name: "{{.metadata.name}}-hq"
+              app.kubernetes.io/name: '{{.metadata.name}}-hq'
           spec:
             containers:
               - name: akhq
-                image: "docker.io/tchiotludo/akhq:0.17.0"
+                image: docker.io/tchiotludo/akhq:0.17.0
                 imagePullPolicy: Always
                 env:
                   - name: MICRONAUT_ENVIRONMENTS
@@ -562,7 +555,7 @@ spec:
             volumes:
               - name: config
                 configMap:
-                  name: "{{.metadata.name}}-hq"
+                  name: '{{.metadata.name}}-hq'
               - name: secrets
                 secret:
-                  secretName: "{{.metadata.name}}-hq-secrets"
+                  secretName: '{{.metadata.name}}-hq-secrets'
