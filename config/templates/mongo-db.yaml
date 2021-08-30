@@ -57,11 +57,11 @@ spec:
                   - containerPort: 27017
                 resources:
                   limits:
-                    cpu: '{{.spec.resources.limits.cpu | default .spec.cpu | default "50m"}}'
-                    memory: '{{.spec.resources.limits.memory | default .spec.memory | default "64Mi"}}'
+                    cpu: '{{.spec.resources.limits.cpu | default .spec.cpu | default "100m"}}'
+                    memory: '{{.spec.resources.limits.memory | default .spec.memory | default "300Mi"}}'
                   requests:
-                    cpu: '{{.spec.resources.requests.cpu | default .spec.cpu |  default "100m"}}'
-                    memory: '{{.spec.resources.requests.memory | default .spec.memory  |   default "300Mi"}}'
+                    cpu: '{{.spec.resources.requests.cpu | default .spec.cpu |  default "50m"}}'
+                    memory: '{{.spec.resources.requests.memory | default .spec.memory  |   default "64Mi"}}'
                 volumeMounts:
                   - mountPath: /var/lib/mongodb/data
                     name: mongodata-{{ .metadata.name }}

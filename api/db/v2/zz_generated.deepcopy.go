@@ -21,7 +21,7 @@ limitations under the License.
 package v2
 
 import (
-	"github.com/flanksource/kommons/api/v1"
+	v1 "github.com/flanksource/kommons/api/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 )
 
